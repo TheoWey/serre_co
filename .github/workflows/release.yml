@@ -1,0 +1,144 @@
+name: Release STM32
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to release'
+        required: true
+        default: main
+      channel:
+        type: choice
+        description: 'Release channel'
+        required: true
+        options:
+          - alpha
+          - rc
+          - release
+        default: release
+      version_bump:
+        type: choice
+        description: 'Type of version bump (applies only to release channel)'
+        required: true
+        options:
+          - patch
+          - minor
+          - major
+        default: patch
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+          fetch-depth: 0
+
+      - name: Setup ARM GCC
+        uses: carlosperate/arm-none-eabi-gcc-action@v1
+        with:
+          release: 13.3.Rel1
+
+      - name: Ensure release only runs on main
+        if: github.event.inputs.channel == 'release' && github.event.inputs.branch != 'main'
+        run: |
+          echo "❌ Release stable must be created from main branch"
+          exit 1
+
+      - name: Determine next version
+        id: version
+        run: |
+          set -e
+          project="serre_co"
+          channel="${{ github.event.inputs.channel }}"
+          bump="${{ github.event.inputs.version_bump }}"
+
+          # Récupérer tous les tags triés par date
+          tags=$(git tag --sort=creatordate)
+
+          # Dernière release stable
+          last_release=$(echo "$tags" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | tail -n1)
+
+          if [[ -z "$last_release" ]]; then
+            major=0; minor=0; patch=1
+          else
+            major=$(echo $last_release | cut -d. -f1 | sed 's/v//')
+            minor=$(echo $last_release | cut -d. -f2)
+            patch=$(echo $last_release | cut -d. -f3)
+          fi
+
+          # Bump pour release
+          if [[ "$channel" == "release" ]]; then
+            if [[ ! -z "$last_release" ]]; then
+              if [[ "$bump" == "major" ]]; then
+                major=$((major + 1)); minor=0; patch=0
+              elif [[ "$bump" == "minor" ]]; then
+                minor=$((minor + 1)); patch=0
+              else
+                patch=$((patch + 1))
+              fi
+            fi
+            new_tag="v${major}.${minor}.${patch}"
+          else
+            # Base = dernière release
+            base_major=$major; base_minor=$minor; base_patch=$patch
+
+            # Pour alpha/rc → toujours patch+1 si release existe
+            if [[ ! -z "$last_release" ]]; then
+              base_patch=$((patch + 1))
+            fi
+
+            # Numéro du channel
+            current_channel_tags=$(echo "$tags" | grep -E "^v${base_major}\.${base_minor}\.${base_patch}-${channel}\.[0-9]+$" | sort -V)
+            if [[ -z "$current_channel_tags" ]]; then
+              num=1
+            else
+              last_channel_tag=$(echo "$current_channel_tags" | tail -n1)
+              num=$(echo "$last_channel_tag" | grep -oE '[0-9]+$')
+              num=$((num + 1))
+            fi
+            new_tag="v${base_major}.${base_minor}.${base_patch}-${channel}.${num}"
+          fi
+
+          release_name="${project}-${channel}-${new_tag}"
+          echo "Nouvelle version: $new_tag"
+          echo "tag=$new_tag" >> $GITHUB_OUTPUT
+          echo "release_name=$release_name" >> $GITHUB_OUTPUT
+
+      - name: Build firmware
+        run: |
+          mkdir -p artifacts
+          version=${{ steps.version.outputs.tag }}
+          if [[ "${{ github.event.inputs.channel }}" == "release" ]]; then
+            echo "🔧 Building RELEASE build"
+            make release VERSION=$version -j$(nproc)
+            cp build/release/serre_co.bin artifacts/
+            cp build/release/serre_co.elf artifacts/
+            make BUILD_DIR=build/release hex VERSION=$version
+            cp build/release/serre_co.hex artifacts/
+          else
+            echo "🔧 Building DEBUG build"
+            make debug VERSION=$version -j$(nproc)
+            cp build/debug/serre_co.bin artifacts/
+            cp build/debug/serre_co.elf artifacts/
+            make BUILD_DIR=build/debug hex VERSION=$version
+            cp build/debug/serre_co.hex artifacts/
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.release_name }}
+          draft: false
+          prerelease: ${{ github.event.inputs.channel != 'release' }}
+          files: |
+            artifacts/serre_co.bin
+            artifacts/serre_co.elf
+            artifacts/serre_co.hex
