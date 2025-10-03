@@ -30,10 +30,24 @@ LD_SCRIPT := $(firstword $(wildcard STM32G031*.ld *.ld))
 # Auto-détection des répertoires d'includes (utilise les mêmes dossiers que les sources)
 INCLUDES := $(foreach dir,$(SRC_DIRS),-I$(dir))
 
+# Some toolchains / CI runners may not enumerate vendor HAL/CMSIS include
+# directories reliably via the recursive search above. Add the common
+# STM32 HAL and CMSIS include folders explicitly so headers like
+# "stm32g0xx_hal.h" are always found.
+HAL_INC := Drivers/STM32G0xx_HAL_Driver/Inc
+CMSIS_DEVICE_INC := Drivers/CMSIS/Device/ST/STM32G0xx/Include
+CMSIS_INC := Drivers/CMSIS/Include
+INCLUDES += $(foreach d,$(HAL_INC) $(CMSIS_DEVICE_INC) $(CMSIS_INC),-I$(d))
+
 # Auto-détection de tous les fichiers sources dans les répertoires trouvés
 SRCS := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c) $(wildcard $(dir)/*.cc) $(wildcard $(dir)/*.cpp) $(wildcard $(dir)/*.s))
 
+# Convert all source file paths to their corresponding object paths under $(BUILD_DIR)
+# Handle multiple extensions so no source files are accidentally passed to the linker.
 OBJS := $(patsubst %.c,$(BUILD_DIR)/%.o,$(SRCS))
+OBJS := $(patsubst %.cc,$(BUILD_DIR)/%.o,$(OBJS))
+OBJS := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(OBJS))
+OBJS := $(patsubst %.s,$(BUILD_DIR)/%.o,$(OBJS))
 
 # Création automatique de tous les dossiers de build nécessaires
 $(shell mkdir -p $(foreach dir,$(SRC_DIRS),$(BUILD_DIR)/$(dir)))
@@ -85,6 +99,12 @@ $(BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	@echo "Compiling C++ $<"
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Assemble .s (assembly) sources
+$(BUILD_DIR)/%.o: %.s
+	@mkdir -p $(dir $@)
+	@echo "Assembling $<"
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Link ELF
 $(BUILD_DIR)/$(ARTIFACT).elf: $(OBJS)
