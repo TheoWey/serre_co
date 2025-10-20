@@ -23,15 +23,8 @@ jobs:
           echo "🔧 Building DEBUG build for STM32G031 on branch: ${{ github.ref_name }}"
           make debug VERSION="dev-${{ github.sha }}" -j$(nproc)
           echo "✅ Build successful!"
-          
-      - name: Build firmware (Release) 
-        run: |
-          echo "🔧 Building RELEASE build for STM32G031 on branch: ${{ github.ref_name }}"
-          make release VERSION="dev-${{ github.sha }}" -j$(nproc)
-          echo "✅ Release build successful!"
 
       - name: Verify artifacts
         run: |
           echo "📦 Checking generated files:"
           ls -la build/debug/serre_co.* || echo "Debug files not found"
-          ls -la build/release/serre_co.* || echo "Release files not found"
