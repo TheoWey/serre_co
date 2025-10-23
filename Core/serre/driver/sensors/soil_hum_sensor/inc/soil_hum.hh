@@ -25,11 +25,6 @@ class SoilHumSensor final : public Sensor {
     virtual ~SoilHumSensor() override;
 
     /**
-     * @brief Reads data from the sensor.
-     */
-    HAL_StatusTypeDef readData() override;
-
-    /**
      * @brief Processes the data read from the sensor.
      */
     void processData() override;
