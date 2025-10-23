@@ -10,15 +10,6 @@ SoilHumSensor::SoilHumSensor(SensorConfig config) {
     this->m_config = config;
 }
 
-HAL_StatusTypeDef SoilHumSensor::readData() {
-    // Read raw ADC value from the sensor
-    this->m_sampleIndex = (this->m_sampleIndex + 1) % 10;
-    if (this->m_numSamples < 10) {
-        this->m_numSamples++;
-    }
-    return this->sensor_readHelper(&(this->m_rawADC[this->m_sampleIndex]));
-}
-
 void SoilHumSensor::processData() {
     sensor::Sensor::processData();
     // Calculate humidity percentage based on calibration values
