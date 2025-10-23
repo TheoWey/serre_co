@@ -25,11 +25,6 @@ class TempSensor final : public Sensor {
     virtual ~TempSensor() override;
 
     /**
-     * @brief Reads data from the temperature sensor.
-     */
-    HAL_StatusTypeDef readData() override;
-
-    /**
      * @brief Processes the raw data to calculate temperature.
      */
     void processData() override;
