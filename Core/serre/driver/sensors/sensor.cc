@@ -29,6 +29,20 @@ HAL_StatusTypeDef Sensor::sensor_readHelper(uint16_t *outValue) {
     return HAL_OK;
 }
 
+HAL_StatusTypeDef Sensor::readData() {
+    // Read raw ADC value from the sensor
+    if (this->sensor_readHelper(&(this->m_rawADC[this->m_sampleIndex])) !=
+        HAL_OK) {
+        return HAL_ERROR;
+    } else {
+        this->m_sampleIndex = (this->m_sampleIndex + 1) % 10;
+        if (this->m_numSamples < 10) {
+            this->m_numSamples++;
+        }
+        return HAL_OK;
+    }
+}
+
 void Sensor::processData() {
     uint8_t numSamples = this->m_numSamples > 0 ? this->m_numSamples : 1;
     this->m_processedValue = 0.0f;

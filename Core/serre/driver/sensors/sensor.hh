@@ -3,7 +3,6 @@
 
 // Includes
 #include "../../../Inc/adc.h"
-#include <cstdint>
 /**
  * @namespace sensor
  * @brief Contains classes and methods for handling various sensors.
@@ -51,12 +50,11 @@ class Sensor {
      * @brief Virtual destructor for Sensor.
      */
     virtual ~Sensor();
-
+    
     /**
-     * @brief Pure virtual function to read data from the sensor.
-     * @return HAL status of the read operation.
+     * @brief Reads data from the temperature sensor.
      */
-    virtual HAL_StatusTypeDef readData() = 0;
+    HAL_StatusTypeDef readData();
 
     /**
      * @brief Processes the raw ADC data and updates the processed value.
@@ -70,6 +68,7 @@ class Sensor {
      * @return HAL status of the read operation.
      */
     HAL_StatusTypeDef sensor_readHelper(uint16_t *outValue);
+
 
     /**
      * @brief Sensor configuration structure.
