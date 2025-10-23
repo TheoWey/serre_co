@@ -10,20 +10,11 @@ TempSensor::TempSensor(sensor::SensorConfig config) {
     this->m_config = config;
 }
 
-HAL_StatusTypeDef TempSensor::readData() {
-    // Read raw ADC value from the sensor
-    this->m_sampleIndex = (this->m_sampleIndex + 1) % 10;
-    if (this->m_numSamples < 10) {
-        this->m_numSamples++;
-    }
-    return this->sensor_readHelper(&(this->m_rawADC[this->m_sampleIndex]));
-}
-
 void TempSensor::processData() {
     sensor::Sensor::processData();
     this->m_processedValue = (3.3f * this->m_processedValue) / ADC_MAX_VALUE;
-    this->m_temperature = (static_cast<float>(this->m_processedValue) - 0.5) *
-                          this->SENSOR_SLOPE;
+    this->m_temperature =
+        (static_cast<float>(this->m_processedValue) - 0.5) * this->SENSOR_SLOPE;
     // Validate the temperature data
     this->m_dataValid = (this->m_temperature >= this->m_minThreshold) &&
                         (this->m_temperature <= this->m_maxThreshold);
