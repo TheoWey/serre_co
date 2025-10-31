@@ -1,7 +1,7 @@
 #ifndef SOIL_HUM_SENSOR_HH
 #define SOIL_HUM_SENSOR_HH
 
-#include "../../sensor.hh"
+#include "../../inc/sensor.hh"
 
 namespace sensor {
 
@@ -15,14 +15,8 @@ namespace sensor {
  */
 class SoilHumSensor final : public Sensor {
   public:
-    /**
-     * @brief Constructor for SoilHumSensor.
-     * @param config Sensor configuration: adcHandle (pointer to ADC handle),
-     * adcChannel (ADC channel number), adcSamplingTime (ADC sampling time),
-     * adcTimeout (ADC timeout in ms).
-     */
-    SoilHumSensor(SensorConfig config);
-    virtual ~SoilHumSensor() override;
+    SoilHumSensor(adc_manager::ADCManager *adcManager, uint8_t numChannels);
+    ~SoilHumSensor() override;
 
     /**
      * @brief Processes the data read from the sensor.
