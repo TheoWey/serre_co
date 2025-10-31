@@ -2,36 +2,13 @@
 #define SENSOR_HH
 
 // Includes
-#include "../../../Inc/adc.h"
+#include "../../ADC_MANAGER/inc/adc_manager.hh"
 /**
  * @namespace sensor
  * @brief Contains classes and methods for handling various sensors.
  */
 
 namespace sensor {
-
-/**
- * @brief Configuration structure for an analog sensor using ADC.
- *
- * This structure holds the configuration parameters required to interface
- * with an analog sensor via the STM32 ADC peripheral.
- *
- * @struct SensorConfig
- * @var ADC_HandleTypeDef *adcHandle
- *      Pointer to the ADC handle used for sensor readings.
- * @var uint32_t adcChannel
- *      ADC channel number assigned to the sensor.
- * @var uint32_t adcSamplingTime
- *      ADC sampling time configuration for the sensor.
- * @var uint32_t adcTimeout
- *      Timeout duration (in milliseconds) for ADC read operations.
- */
-typedef struct {
-    ADC_HandleTypeDef *adcHandle; ///< Pointer to the ADC handle
-    uint32_t adcChannel;          ///< ADC channel number
-    uint32_t adcSamplingTime;     ///< ADC sampling time
-    uint32_t adcTimeout;          ///< ADC read timeout in milliseconds
-} SensorConfig;
 
 /**
  * @class Sensor
@@ -47,10 +24,16 @@ typedef struct {
 class Sensor {
   public:
     /**
+     * @brief Constructor for Sensor class.
+     * @param config Configuration structure for the sensor.
+     */
+    Sensor(adc_manager::ADCManager *adcManager, uint8_t numChannels);
+
+    /**
      * @brief Virtual destructor for Sensor.
      */
     virtual ~Sensor();
-    
+
     /**
      * @brief Reads data from the temperature sensor.
      */
@@ -62,18 +45,8 @@ class Sensor {
     virtual void processData();
 
   protected:
-    /**
-     * @brief Helper function to read a value from the sensor's ADC.
-     * @param[out] outValue Pointer to store the read ADC value.
-     * @return HAL status of the read operation.
-     */
-    HAL_StatusTypeDef sensor_readHelper(uint16_t *outValue);
-
-
-    /**
-     * @brief Sensor configuration structure.
-     */
-    SensorConfig m_config = {};
+    adc_manager::ADCManager *m_adcManager;
+    uint8_t m_numChannels = 0; ///< Number of ADC channels used by the sensor.
 
     uint8_t m_numSamples = 0;    ///< Number of samples to average.
     bool m_dataValid = false;    ///< Flag indicating if the data is valid.

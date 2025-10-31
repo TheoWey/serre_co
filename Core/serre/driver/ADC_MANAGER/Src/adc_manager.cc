@@ -70,8 +70,10 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
     if (hadc == nullptr) {
         return;
     }
+
     adc_manager::ADCManager &adcManager =
         adc_manager::ADCManager::getInstance();
 
+    adcManager.stop();
     adcManager.setConversionCompleteFlag(true);
 }
