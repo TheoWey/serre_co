@@ -1,7 +1,7 @@
 #ifndef TEMP_SENSOR_HH
 #define TEMP_SENSOR_HH
 
-#include "../../sensor.hh"
+#include "../../inc/sensor.hh"
 
 namespace sensor {
 
@@ -15,14 +15,8 @@ namespace sensor {
  */
 class TempSensor final : public Sensor {
   public:
-    /**
-     * @brief Constructor for TempSensor.
-     * @param config Sensor configuration: adcHandle (pointer to ADC handle),
-     * adcChannel (ADC channel number), adcSamplingTime (ADC sampling time),
-     * adcTimeout (ADC timeout in ms).
-     */
-    TempSensor(sensor::SensorConfig config);
-    virtual ~TempSensor() override;
+    TempSensor(adc_manager::ADCManager *adcManager, uint8_t numChannels);
+    ~TempSensor() override;
 
     /**
      * @brief Processes the raw data to calculate temperature.
