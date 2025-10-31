@@ -1,31 +1,37 @@
 #include "main_serre.h"
 
-#include "../Inc/adc.h"
+#include "driver/ADC_MANAGER/inc/adc_manager.hh"
+#include "driver/sensors/inc/sensor_manager.hh"
 #include "driver/sensors/soil_hum_sensor/inc/soil_hum.hh"
 #include "driver/sensors/temp_sensor/inc/temp_sensor.hh"
 
 void main_serre(void) {
+    sensor::SensorManager &sensorManager = sensor::SensorManager::getInstance();
 
-    static sensor::SensorConfig tempConfig = {&hadc1, ADC_CHANNEL_1,
-                                              ADC_SAMPLINGTIME_COMMON_1, 100};
+    adc_manager::ADCManager &adcManager =
+        adc_manager::ADCManager::getInstance(nullptr, nullptr);
 
-    static sensor::SensorConfig soilHumConfig = {
-        &hadc1, ADC_CHANNEL_0, ADC_SAMPLINGTIME_COMMON_1, 100};
-
-    static sensor::SoilHumSensor soilHumSensor(soilHumConfig);
-    static sensor::TempSensor tempSensor(tempConfig);
-
-    float temperature = 0.0f;
-    float humidity = 0.0f;
-
-    if (tempSensor.readData() == HAL_OK) {
-        tempSensor.processData();
-        temperature = tempSensor.getTemperatureCelsius();
+    if (adcManager.getConversionCompleteFlag()) {
+        sensorManager.readAllSensors();
+        sensorManager.processAllSensors();
+        adcManager.setConversionCompleteFlag(false);
     }
+}
 
-    if (soilHumSensor.readData() == HAL_OK) {
-        soilHumSensor.processData();
-        humidity = soilHumSensor.getHumidityPercent();
+void config(void) {
+    static adc_manager::ADCManager &adcManager =
+        adc_manager::ADCManager::getInstance(&hadc1, &hdma_adc1);
+
+    static sensor::TempSensor tempSensor0(&adcManager, 1);
+    static sensor::SoilHumSensor soilHumSensor0(&adcManager, 0);
+
+    static sensor::SensorManager &sensorManager =
+        sensor::SensorManager::getInstance();
+
+    sensorManager.subscribeTempSensor(&tempSensor0);
+    sensorManager.subscribeSoilHumSensor(&soilHumSensor0);
+
+    if (HAL_OK != adcManager.start()) {
+        Error_Handler();
     }
-    HAL_Delay(1000);
 }
