@@ -2,12 +2,13 @@
 
 namespace sensor {
 
-SoilHumSensor::SoilHumSensor(SensorConfig config) {
+SoilHumSensor::SoilHumSensor(adc_manager::ADCManager *adcManager,
+                             uint8_t numChannels)
+    : sensor::Sensor(adcManager, numChannels) {
     // Initialize the ADC channel configuration
-    if (config.adcHandle == nullptr) {
+    if (adcManager == nullptr) {
         Error_Handler();
     }
-    this->m_config = config;
 }
 
 void SoilHumSensor::processData() {
