@@ -2,12 +2,12 @@
 
 namespace sensor {
 
-TempSensor::TempSensor(sensor::SensorConfig config) {
+TempSensor::TempSensor(adc_manager::ADCManager *adcManager, uint8_t numChannels)
+    : Sensor(adcManager, numChannels) {
     // Initialize the ADC channel configuration
-    if (config.adcHandle == nullptr) {
+    if (adcManager == nullptr) {
         Error_Handler();
     }
-    this->m_config = config;
 }
 
 void TempSensor::processData() {
