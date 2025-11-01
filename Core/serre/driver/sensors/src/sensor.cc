@@ -12,9 +12,8 @@ Sensor::Sensor(adc_manager::ADCManager *adcManager, uint8_t numChannels) {
 
 HAL_StatusTypeDef Sensor::readData() {
     // Read raw ADC value from the sensor
-    this->m_rawADC[this->m_sampleIndex] =
-        this->m_adcManager->getChannelValue(this->m_numChannels);
-    this->m_sampleIndex = (this->m_sampleIndex + 1) % 10;
+    this->m_rawADC.add(
+        this->m_adcManager->getChannelValue(this->m_numChannels));
     if (this->m_numSamples < 10) {
         this->m_numSamples++;
     }
@@ -22,13 +21,18 @@ HAL_StatusTypeDef Sensor::readData() {
 }
 
 void Sensor::processData() {
-    // Average available samples
     uint8_t numSamples = this->m_numSamples > 0 ? this->m_numSamples : 1;
-    this->m_processedValue = 0.0f;
+
+    uint16_t sum = 0;
     for (uint8_t i = 0; i < numSamples; i++) {
-        this->m_processedValue += this->m_rawADC[i];
+        uint16_t value;
+        if (this->m_rawADC.get(value)) {
+            sum += value;
+        }
     }
-    this->m_processedValue /= static_cast<float>(numSamples);
+
+    this->m_processedValue =
+        static_cast<float>(sum) / static_cast<float>(numSamples);
 }
 
 Sensor::~Sensor() {

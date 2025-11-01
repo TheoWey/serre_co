@@ -3,6 +3,8 @@
 
 // Includes
 #include "../../ADC_MANAGER/inc/adc_manager.hh"
+#include "../../UTILS/circular_buffer/circular_buffer.hh"
+
 /**
  * @namespace sensor
  * @brief Contains classes and methods for handling various sensors.
@@ -48,11 +50,12 @@ class Sensor {
     adc_manager::ADCManager *m_adcManager;
     uint8_t m_numChannels = 0; ///< Number of ADC channels used by the sensor.
 
-    uint8_t m_numSamples = 0;    ///< Number of samples to average.
-    bool m_dataValid = false;    ///< Flag indicating if the data is valid.
-    uint16_t m_rawADC[10] = {0}; ///< Raw ADC value from the sensor.
-    float m_processedValue = 0;  ///< Processed sensor value.
-    uint8_t m_sampleIndex = 0;   ///< Index for sampling multiple readings.
+    uint8_t m_numSamples = 0; ///< Number of samples to average.
+    bool m_dataValid = false; ///< Flag indicating if the data is valid.
+    const static uint8_t MAX_SAMPLES = 10; ///< Maximum number of samples.
+    utils::CircularBuffer<uint16_t, MAX_SAMPLES>
+        m_rawADC;               ///< Raw ADC value from the sensor.
+    float m_processedValue = 0; ///< Processed sensor value.
 };
 
 } // namespace sensor
