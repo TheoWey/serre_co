@@ -95,6 +95,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_ADC1_Init();
   MX_I2C1_Init();
+  MX_TIM1_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   main_serre_init();
