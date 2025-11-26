@@ -64,7 +64,7 @@ void SensorSubscribe(T *(&sensorArray)[MAX_SENSORS], T *sensor) {
  */
 template <typename T, typename MemFn>
 inline void SensorDataOperation(T *(&sensorArray)[MAX_SENSORS], MemFn OpeFunc,
-                         uint8_t index) noexcept {
+                                uint8_t index) noexcept {
     // If index is out of range, treat as "broadcast" to all sensors.
     if (index >= MAX_SENSORS) {
         for (size_t i = 0; i < MAX_SENSORS; ++i) {
@@ -177,6 +177,10 @@ class SensorManager {
      * processAllSensors().
      */
     void updateAllSensors();
+
+    TempSensor *getTempSensor(uint8_t index);
+    
+    SoilHumSensor *getSoilHumSensor(uint8_t index);
 
   private:
     /**

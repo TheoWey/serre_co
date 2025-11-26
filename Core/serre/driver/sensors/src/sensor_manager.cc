@@ -65,4 +65,22 @@ void SensorManager::updateAllSensors() {
     this->processAllSensors();
 }
 
+TempSensor *SensorManager::getTempSensor(uint8_t index) {
+    if (index < MAX_SENSORS) {
+        return this->tempSensor[index];
+    }
+    // Handle out-of-bounds access as needed (e.g., throw exception or return
+    // nullptr)
+    return nullptr; // Placeholder return
+}
+
+SoilHumSensor *SensorManager::getSoilHumSensor(uint8_t index) {
+    if (index < MAX_SENSORS) {
+        return this->soilHumSensor[index];
+    }
+    // Handle out-of-bounds access as needed (e.g., throw exception or return
+    // nullptr)
+    return nullptr; // Placeholder return
+}
+
 } // namespace sensor
