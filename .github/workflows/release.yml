@@ -41,9 +41,9 @@ jobs:
           fetch-depth: 0
 
       - name: Setup ARM GCC
-        uses: carlosperate/arm-none-eabi-gcc-action@v1
-        with:
-          release: 13.3.Rel1
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi
 
       - name: Ensure release only runs on main
         if: github.event.inputs.channel == 'release' && github.event.inputs.branch != 'main'
