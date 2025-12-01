@@ -12,10 +12,14 @@
 
 namespace sensor {
 
-SensorManager::SensorManager() {
+__WEAK void init_sensors(void) {
+    // Weak implementation for user override
 }
 
-SensorManager::~SensorManager() {
+void SensorManager::initialize() {
+    // Placeholder for future initialization logic
+    SensorManager &instance = getInstance();
+    (void)instance;
 }
 
 SensorManager &SensorManager::getInstance() {
@@ -50,14 +54,29 @@ void SensorManager::processSoilHumData(uint8_t index) {
                                        &SoilHumSensor::processData, index);
 }
 
-void SensorManager::readAllSensors() {
-    this->readTempData();
-    this->readSoilHumData();
+void SensorManager::calibrateTempSensor(uint8_t index) {
+    SensorDataOperation<TempSensor>(this->tempSensor,
+                                    &TempSensor::calibrateOffset, index);
+}
+
+void SensorManager::calibrateSoilHumSensor(uint8_t index) {
+    SensorDataOperation<SoilHumSensor>(this->soilHumSensor,
+                                       &SoilHumSensor::calibrateOffset, index);
+}
+
+void SensorManager::calibrateAllSensors() {
+    this->calibrateTempSensor();
+    this->calibrateSoilHumSensor();
 }
 
 void SensorManager::processAllSensors() {
     this->processTempData();
     this->processSoilHumData();
+}
+
+void SensorManager::readAllSensors() {
+    this->readTempData();
+    this->readSoilHumData();
 }
 
 void SensorManager::updateAllSensors() {
@@ -69,18 +88,14 @@ TempSensor *SensorManager::getTempSensor(uint8_t index) {
     if (index < MAX_SENSORS) {
         return this->tempSensor[index];
     }
-    // Handle out-of-bounds access as needed (e.g., throw exception or return
-    // nullptr)
-    return nullptr; // Placeholder return
+    return nullptr;
 }
 
 SoilHumSensor *SensorManager::getSoilHumSensor(uint8_t index) {
     if (index < MAX_SENSORS) {
         return this->soilHumSensor[index];
     }
-    // Handle out-of-bounds access as needed (e.g., throw exception or return
-    // nullptr)
-    return nullptr; // Placeholder return
+    return nullptr;
 }
 
 } // namespace sensor
