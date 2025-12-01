@@ -65,11 +65,12 @@ typedef struct {
  */
 void init_lcd(void);
 
-static void int_to_string(char *buffer, int value, int base);
+void int_to_string(char *buffer, int value, int base);
 
-static void float_to_string(char *buffer, float value, int precision);
+void float_to_string(char *buffer, float value, int precision);
 
-static void format_string(char *buffer, const char *format, va_list args);
+void format_string(char *buffer, size_t buffer_size, const char *format,
+                   va_list args);
 
 /**
  * @brief Singleton class providing LCD operations.
