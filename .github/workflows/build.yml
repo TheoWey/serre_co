@@ -14,9 +14,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup ARM GCC
-        uses: carlosperate/arm-none-eabi-gcc-action@v1
-        with:
-          release: 13.3.Rel1
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi
 
       - name: Build firmware (Debug)
         run: |
