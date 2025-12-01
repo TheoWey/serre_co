@@ -18,33 +18,39 @@ void main_serre(void) {
 
         static float lastTemp = -1000.0f;
         static float lastSoilHum = -1.0f;
+        float temperature = -1000.0f;
+        float soilHumidity = -1.0f;
 
         if (sensorManager.getTempSensor(0) != nullptr) {
-            float temperature =
+            temperature =
                 sensorManager.getTempSensor(0)->getTemperatureCelsius();
-            lastTemp = temperature;
             float dutyCycle =
                 ((temperature * 100.0f) / 50.0f) / 100; // Scale 20-40C
             pwm::PWMManager::getInstance().setDutyCycle(
                 0, dutyCycle); // Control first PWM channel
         }
         if (sensorManager.getSoilHumSensor(0) != nullptr) {
-            float soilHumidity =
+            soilHumidity =
                 sensorManager.getSoilHumSensor(0)->getHumidityPercent();
-            lastSoilHum = soilHumidity;
             float dutyCycle = (100.0f - soilHumidity) / 100.0f; // Scale 0-100%
             pwm::PWMManager::getInstance().setDutyCycle(
                 1, dutyCycle); // Control second PWM channel
         }
-        print_status(lastTemp, lastSoilHum);
+        if (temperature != lastTemp + 0.5 || temperature != lastTemp - 0.5 ||
+            soilHumidity != lastSoilHum + 1.0f ||
+            soilHumidity != lastSoilHum - 1.0f) {
+            lastSoilHum = soilHumidity;
+            lastTemp = temperature;
+            print_status(lastTemp, lastSoilHum);
+        }
     }
 
     pwm::PWMManager::getInstance().enableAll(true);
 }
 
 void main_serre_init(void) {
-    lcd::init_lcd();
     i2c::init_i2c();
+    lcd::init_lcd();
     pwm::init_pwm();
     adc_manager::init_adc();
     sensor::init_sensors();
