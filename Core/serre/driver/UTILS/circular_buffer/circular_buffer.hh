@@ -15,6 +15,8 @@
 #include "stm32g0xx_hal.h"
 
 namespace utils {
+namespace circular_buffer {
+
 /**
  * @class CircularBuffer
  * @brief A template class for managing a circular buffer.
@@ -31,7 +33,7 @@ template <typename T, size_t SIZE> class CircularBuffer {
     /**
      * @brief Constructor for CircularBuffer.
      */
-        CircularBuffer() : head_(0), tail_(0), full_(false), size_(0), sum_(0) {
+    CircularBuffer() : head_(0), tail_(0), full_(false), size_(0), sum_(0) {
     }
 
     /**
@@ -41,7 +43,8 @@ template <typename T, size_t SIZE> class CircularBuffer {
     void add(const T &item) {
         // If buffer full, we will overwrite the oldest element at current head
         if (full_) {
-            // Subtract the value being overwritten to keep a correct running sum
+            // Subtract the value being overwritten to keep a correct running
+            // sum
             sum_ -= static_cast<uint32_t>(buffer_[head_]);
         } else {
             // Increase valid size until we reach capacity
@@ -134,13 +137,14 @@ template <typename T, size_t SIZE> class CircularBuffer {
     }
 
   private:
-    T buffer_[SIZE];   ///< The underlying buffer storage.
-    size_t head_;      ///< Index of the next write position.
-    size_t tail_;      ///< Index of the next read position.
-    bool full_;        ///< Flag indicating if the buffer is full.
-    size_t size_;      ///< Number of valid items stored (<= SIZE).
-    uint32_t sum_;     ///< Running sum of items for O(1) average.
+    T buffer_[SIZE]; ///< The underlying buffer storage.
+    size_t head_;    ///< Index of the next write position.
+    size_t tail_;    ///< Index of the next read position.
+    bool full_;      ///< Flag indicating if the buffer is full.
+    size_t size_;    ///< Number of valid items stored (<= SIZE).
+    uint32_t sum_;   ///< Running sum of items for O(1) average.
 };
 
+} // namespace circular_buffer
 } // namespace utils
 #endif // CIRCULAR_BUFFER_HH
