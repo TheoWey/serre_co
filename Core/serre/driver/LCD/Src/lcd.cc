@@ -6,7 +6,7 @@ __WEAK void init_lcd(void) {
     // Weak implementation for user override
 }
 
-static void int_to_string(char *buffer, int value, int base) {
+void int_to_string(char *buffer, int value, int base) {
     char *ptr = buffer, *ptr1 = buffer, tmp_char;
     int tmp_value;
 
@@ -41,11 +41,12 @@ static void int_to_string(char *buffer, int value, int base) {
     }
 }
 
-static void float_to_string(char *buffer, float value, int precision) {
+void float_to_string(char *buffer, float value, int precision) {
     int int_part = static_cast<int>(value);
     float frac_part = value - static_cast<float>(int_part);
     if (value < 0 && int_part == 0) {
         *buffer++ = '-';
+        frac_part = -frac_part;
     }
     int_to_string(buffer, int_part, 10);
     while (*buffer != '\0') {
@@ -61,9 +62,21 @@ static void float_to_string(char *buffer, float value, int precision) {
     *buffer = '\0';
 }
 
-static void format_string(char *buffer, const char *format, va_list args) {
+void format_string(char *buffer, size_t buffer_size, const char *format,
+                   va_list args) {
+    if (buffer_size == 0) {
+        return;
+    }
+
     char *buf_ptr = buffer;
+    char *buf_end = buffer + buffer_size - 1;
     const char *fmt_ptr = format;
+
+    auto put_char = [&](char c) {
+        if (buf_ptr < buf_end) {
+            *buf_ptr++ = c;
+        }
+    };
 
     while (*fmt_ptr) {
         if (*fmt_ptr == '%') {
@@ -73,7 +86,7 @@ static void format_string(char *buffer, const char *format, va_list args) {
                 int int_val = va_arg(args, int);
                 char int_buffer[12];
                 int_to_string(int_buffer, int_val, 10);
-                for (char *p = int_buffer; *p; p++) {
+                for (char *p = int_buffer; *p && buf_ptr < buf_end; p++) {
                     *buf_ptr++ = *p;
                 }
                 break;
@@ -82,25 +95,27 @@ static void format_string(char *buffer, const char *format, va_list args) {
                 double float_val = va_arg(args, double);
                 char float_buffer[32];
                 float_to_string(float_buffer, static_cast<float>(float_val), 2);
-                for (char *p = float_buffer; *p; p++) {
+                for (char *p = float_buffer; *p && buf_ptr < buf_end; p++) {
                     *buf_ptr++ = *p;
                 }
                 break;
             }
             case 's': {
                 const char *str_val = va_arg(args, const char *);
-                while (*str_val) {
+                while (*str_val && buf_ptr < buf_end) {
                     *buf_ptr++ = *str_val++;
                 }
                 break;
             }
             default:
-                *buf_ptr++ = '%';
-                *buf_ptr++ = *fmt_ptr;
+                put_char('%');
+                if (*fmt_ptr) {
+                    put_char(*fmt_ptr);
+                }
                 break;
             }
         } else {
-            *buf_ptr++ = *fmt_ptr;
+            put_char(*fmt_ptr);
         }
         fmt_ptr++;
     }
@@ -137,15 +152,15 @@ void LCD::lcd_gpio_init() {
 
     HAL_GPIO_WritePin(this->lcd_handler.pin_config.rs.data_port,
                       this->lcd_handler.pin_config.rs.data_pin, GPIO_PIN_RESET);
-    this->lcd_gpio_command(0x28); // Mode 4 bits, 2 lignes, 5x8
-    this->lcd_gpio_command(0x0C); // Affichage ON, curseur OFF
-    this->lcd_gpio_command(0x06); // Incrémenter le curseur
+    this->lcd_gpio_command(0x28); // Mode 4 bits, 2 lines, 5x8
+    this->lcd_gpio_command(0x0C); // Display ON, cursor OFF
+    this->lcd_gpio_command(0x06); // Increment cursor
     this->lcd_clear_gpio();
 }
 
 void LCD::lcd_gpio_command(uint8_t cmd) {
     HAL_GPIO_WritePin(this->lcd_handler.pin_config.rs.data_port,
-                      this->lcd_handler.pin_config.rs.data_pin, GPIO_PIN_SET);
+                      this->lcd_handler.pin_config.rs.data_pin, GPIO_PIN_RESET);
 
     this->lcd_gpio_send_4bits(cmd >> 4);
     this->lcd_gpio_send_4bits(cmd & 0x0F);
@@ -198,16 +213,17 @@ void LCD::lcd_write_str_i2c(const char *str) {
 }
 
 void LCD::lcd_write_str(const char *str, ...) {
-    char buffer[16];
+    char buffer[32];
     va_list args;
     va_start(args, str);
-    format_string(buffer, reinterpret_cast<const char *>(str), args);
+    format_string(buffer, sizeof(buffer), reinterpret_cast<const char *>(str),
+                  args);
     va_end(args);
 
     if (this->lcd_handler.mode == LCD_MODE_GPIO) {
-        this->lcd_write_str_gpio(reinterpret_cast<const char *>(buffer));
+        this->lcd_write_str_gpio(buffer);
     } else {
-        this->lcd_write_str_i2c(reinterpret_cast<const char *>(buffer));
+        this->lcd_write_str_i2c(buffer);
     }
 }
 
