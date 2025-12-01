@@ -12,33 +12,28 @@
 #include "../inc/adc_manager.hh"
 
 namespace adc_manager {
-ADCManager *ADCManager::m_instance = nullptr;
 
-ADCManager::ADCManager() {
+__WEAK void init_adc(void) {
+    // Weak implementation for user override
 }
 
 void ADCManager::initialize(ADC_HandleTypeDef *adc_handle,
                             DMA_HandleTypeDef *dma_handle,
                             TIM_HandleTypeDef *tim_handle) {
-    static ADCManager instance;
-    instance.m_handle_.adc_handle = adc_handle;
-    instance.m_handle_.dma_handle = dma_handle;
-    instance.m_handle_.tim_handle = tim_handle;
-    instance.m_initialized_ = true;
-    m_instance = &instance;
+    ADCManager &instance = getInstance();
+    instance.adc_handler.adc_handle = adc_handle;
+    instance.adc_handler.dma_handle = dma_handle;
+    instance.adc_handler.tim_handle = tim_handle;
 }
 
 ADCManager &ADCManager::getInstance() {
-    // Ensure initialize() has been called before use
-    if (m_instance == nullptr || !m_instance->m_initialized_) {
-        Error_Handler();
-    }
-    return *m_instance;
+    static ADCManager instance;
+    return instance;
 }
 
 HAL_StatusTypeDef ADCManager::start() {
-    HAL_TIM_Base_Start(m_handle_.tim_handle);
-    if (HAL_ADC_Start_DMA(m_handle_.adc_handle,
+    HAL_TIM_Base_Start(adc_handler.tim_handle);
+    if (HAL_ADC_Start_DMA(adc_handler.adc_handle,
                           reinterpret_cast<uint32_t *>(this->m_buffer_),
                           BUFFER_LENGTH) != HAL_OK) {
 
@@ -48,10 +43,10 @@ HAL_StatusTypeDef ADCManager::start() {
 }
 
 HAL_StatusTypeDef ADCManager::stop() {
-    if (HAL_ADC_Stop_DMA(m_handle_.adc_handle) != HAL_OK) {
+    if (HAL_ADC_Stop_DMA(adc_handler.adc_handle) != HAL_OK) {
         return HAL_ERROR;
     }
-    HAL_TIM_Base_Stop(m_handle_.tim_handle);
+    HAL_TIM_Base_Stop(adc_handler.tim_handle);
     return HAL_OK;
 }
 
