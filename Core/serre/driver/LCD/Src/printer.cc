@@ -1,4 +1,5 @@
 #include "../inc/printer.hh"
+#include "../inc/lcd.hh"
 
 void print_welcome_message() {
     lcd::LCD &lcd = lcd::LCD::getInstance();
@@ -18,9 +19,9 @@ void print_status(float temperature, float soilHumidity) {
     lcd::LCD &lcd = lcd::LCD::getInstance();
     lcd.lcd_clear();
     lcd.lcd_goto(0, 0);
-    lcd.lcd_write_str("Temp: %a°C", temperature);
+    lcd.lcd_write_str("Temp: %fC", temperature);
     lcd.lcd_goto(1, 0);
-    lcd.lcd_write_str("Soil: %a%", soilHumidity);
+    lcd.lcd_write_str("Soil: %f%", soilHumidity);
 }
 
 void print_error(const char *errorMessage) {
