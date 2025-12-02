@@ -57,8 +57,6 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define PSH_BUT_SEL_Pin GPIO_PIN_9
-#define PSH_BUT_SEL_GPIO_Port GPIOB
 #define T_NRST_Pin GPIO_PIN_2
 #define T_NRST_GPIO_Port GPIOF
 #define CAPT_HUM_Pin GPIO_PIN_0
@@ -69,12 +67,6 @@ void Error_Handler(void);
 #define T_VCP_TX_GPIO_Port GPIOA
 #define T_VCP_RX_Pin GPIO_PIN_3
 #define T_VCP_RX_GPIO_Port GPIOA
-#define DATA1_Pin GPIO_PIN_0
-#define DATA1_GPIO_Port GPIOB
-#define DATA0_Pin GPIO_PIN_1
-#define DATA0_GPIO_Port GPIOB
-#define DATA2_Pin GPIO_PIN_2
-#define DATA2_GPIO_Port GPIOB
 #define FAN_Pin GPIO_PIN_8
 #define FAN_GPIO_Port GPIOA
 #define LD3_Pin GPIO_PIN_6
@@ -85,14 +77,12 @@ void Error_Handler(void);
 #define T_JTCK_GPIO_Port GPIOA
 #define PUMP_Pin GPIO_PIN_3
 #define PUMP_GPIO_Port GPIOB
-#define RS_Pin GPIO_PIN_5
-#define RS_GPIO_Port GPIOB
 #define PSH_BUT_DOWN_Pin GPIO_PIN_6
 #define PSH_BUT_DOWN_GPIO_Port GPIOB
 #define PSH_BUT_UP_Pin GPIO_PIN_7
 #define PSH_BUT_UP_GPIO_Port GPIOB
-#define DATA3_Pin GPIO_PIN_8
-#define DATA3_GPIO_Port GPIOB
+#define PSH_BUT_SEL_Pin GPIO_PIN_8
+#define PSH_BUT_SEL_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
