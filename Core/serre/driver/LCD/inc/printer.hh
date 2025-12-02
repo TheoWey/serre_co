@@ -11,8 +11,6 @@
  * lcd.hh.
  */
 
-#include "lcd.hh"
-
 void print_welcome_message();
 
 void print_goodbye_message();
