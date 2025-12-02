@@ -23,7 +23,7 @@ namespace sensor {
  *
  * This constant defines the fixed-size arrays used to store sensor pointers.
  */
-constexpr uint8_t MAX_SENSORS = 5;
+constexpr size_t MAX_SENSORS = 5;
 
 /**
  * @brief Initializes the sensor subsystem. Implemented as a weak function in
