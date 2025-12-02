@@ -44,6 +44,7 @@ typedef struct {
 typedef struct {
     gpio_pin_handler_t data_pins[4]; /**< Data pins D4..D7 */
     gpio_pin_handler_t rs;           /**< Register Select pin */
+    gpio_pin_handler_t enable;       /**< Enable pin */
 } lcd_gpio_config_t;
 
 /**
@@ -190,6 +191,7 @@ class LCD {
     void lcd_write_str_i2c(const char *str);
 
     void lcd_write_str(const char *str, ...);
+
     void lcd_clear_gpio();
 
     void lcd_clear_i2c();
@@ -218,6 +220,8 @@ class LCD {
     void lcd_goto_i2c(uint8_t row, uint8_t col);
 
     void lcd_goto(uint8_t row, uint8_t col);
+
+    void lcd_gpio_toggle_enable();
 
   private:
     LCD();
