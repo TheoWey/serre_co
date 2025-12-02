@@ -22,10 +22,6 @@ void Sensor::processData() {
     this->m_processedValue = this->m_rawADC.average();
 }
 
-void Sensor::calibrateOffset() {
-    // Default implementation does nothing
-}
-
 Sensor::~Sensor() {
 }
 
