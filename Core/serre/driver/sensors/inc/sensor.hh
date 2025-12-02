@@ -46,15 +46,13 @@ class Sensor {
      */
     virtual void processData();
 
-    virtual void calibrateOffset();
-
   protected:
     adc_manager::ADCManager *m_adcManager;
     uint8_t m_numChannels = 0; ///< Number of ADC channels used by the sensor.
 
     bool m_dataValid = false; ///< Flag indicating if the data is valid.
     const static uint8_t MAX_SAMPLES = 10; ///< Maximum number of samples.
-    utils::circular_buffer::CircularBuffer<uint16_t, MAX_SAMPLES>
+    utils::CircularBuffer<uint16_t, MAX_SAMPLES>
         m_rawADC;               ///< Raw ADC value from the sensor.
     float m_processedValue = 0; ///< Processed sensor value.
 };
