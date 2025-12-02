@@ -71,7 +71,7 @@ class PWMManager {
      * @note Does not allocate memory; simply stores the handler in the
      *       internal array and updates bookkeeping (initialized/active).
      */
-    void subscribePWM(pwm_handler_t handler);
+    void subscribePWM(PWM pwm_instance);
 
     /**
      * @brief Unregister (unsubscribe) a PWM handler by index.
@@ -129,12 +129,16 @@ class PWMManager {
     PWMManager(const PWMManager &) = delete;
     PWMManager &operator=(const PWMManager &) = delete;
 
-    pwm_handler_t pwm_handlers[MAX_PWM_CHANNELS] = {
-        {nullptr, 0}, {nullptr, 0}, {nullptr, 0}, {nullptr, 0}, {nullptr, 0},
-        {nullptr, 0}, {nullptr, 0}, {nullptr, 0}, {nullptr, 0}, {nullptr, 0}};
+    PWM pwm_instances[MAX_PWM_CHANNELS] = {
+        PWM({nullptr, 0}), PWM({nullptr, 0}), PWM({nullptr, 0}),
+        PWM({nullptr, 0}), PWM({nullptr, 0}), PWM({nullptr, 0}),
+        PWM({nullptr, 0}), PWM({nullptr, 0}), PWM({nullptr, 0}),
+        PWM({nullptr, 0})}; ///< Preallocated PWM instances
+
     bool initialized[MAX_PWM_CHANNELS] = {
         false, false, false, false, false,
         false, false, false, false, false}; ///< Track initialized channels
+        
     size_t active_channels_ = 0;            ///< Number of active PWM channels
 };
 
