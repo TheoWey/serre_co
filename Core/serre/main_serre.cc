@@ -3,14 +3,12 @@
 #include "driver/ADC_MANAGER/inc/adc_manager.hh"
 #include "driver/LCD/inc/printer.hh"
 #include "driver/PWM/inc/pwm_manager.hh"
-#include "driver/UTILS/debouncer/inc/debouncer.hh"
 #include "driver/sensors/inc/sensor_manager.hh"
 
 void main_serre(void) {
 
     adc_manager::ADCManager &adcManager =
         adc_manager::ADCManager::getInstance();
-    utils::debouncer::DebouncerManager::getInstance().updateAllDebouncers();
 
     if (adcManager.getConversionCompleteFlag()) {
         pwm::PWMManager::getInstance().enableAll(false);
@@ -51,7 +49,6 @@ void main_serre(void) {
 }
 
 void main_serre_init(void) {
-    utils::debouncer::init_debouncer();
     i2c::init_i2c();
     lcd::init_lcd();
     pwm::init_pwm();
@@ -60,14 +57,6 @@ void main_serre_init(void) {
 
     print_welcome_message();
     HAL_Delay(5000);
-}
-
-void utils::debouncer::init_debouncer() {
-    utils::debouncer::DebouncerHandler debouncer_handlers[] = {
-        {PSH_BUT_UP_GPIO_Port, PSH_BUT_UP_Pin, 50, 0, GPIO_PIN_RESET},
-        {PSH_BUT_DOWN_GPIO_Port, PSH_BUT_DOWN_Pin, 50, 0, GPIO_PIN_RESET},
-        {PSH_BUT_SEL_GPIO_Port, PSH_BUT_SEL_Pin, 50, 0, GPIO_PIN_RESET}};
-    utils::debouncer::DebouncerManager::initialize(debouncer_handlers, 3);
 }
 
 void i2c::init_i2c(void) {
