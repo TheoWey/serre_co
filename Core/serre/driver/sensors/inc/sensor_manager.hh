@@ -7,7 +7,7 @@
  *
  * @authors ThéoWey, ThybaltCarratala
  * @date 2024-06-10
- * @version 1.1
+ * @version 1.0
  */
 
 #ifndef SENSOR_MANAGER_HH
@@ -26,12 +26,6 @@ namespace sensor {
 constexpr uint8_t MAX_SENSORS = 5;
 
 /**
- * @brief Initializes the sensor subsystem. Implemented as a weak function in
- * sensor_manager.cc.
- */
-void init_sensors(void);
-
-/**
  * @brief Subscribe a sensor pointer into a fixed-size array.
  *
  * Adds the provided sensor pointer into the first available nullptr slot of
@@ -40,11 +34,11 @@ void init_sensors(void);
  * to return a status if needed.
  *
  * @tparam T Sensor type (e.g., TempSensor or SoilHumSensor).
- * @param sensorArray Reference to the fixed-size array of pointers.
+ * @param sensorArray Reference to the fixed-size array to populate.
  * @param sensor Pointer to the sensor to subscribe.
  */
 template <typename T>
-void SensorSubscribe(T *sensorArray[MAX_SENSORS], T *sensor) {
+void SensorSubscribe(T *(&sensorArray)[MAX_SENSORS], T *sensor) {
     for (size_t i = 0; i < MAX_SENSORS; ++i) {
         if (sensorArray[i] == nullptr) {
             sensorArray[i] = sensor;
@@ -69,7 +63,7 @@ void SensorSubscribe(T *sensorArray[MAX_SENSORS], T *sensor) {
  *              MAX_SENSORS to indicate "all".
  */
 template <typename T, typename MemFn>
-inline void SensorDataOperation(T *sensorArray[MAX_SENSORS], MemFn OpeFunc,
+inline void SensorDataOperation(T *(&sensorArray)[MAX_SENSORS], MemFn OpeFunc,
                                 uint8_t index) noexcept {
     // If index is out of range, treat as "broadcast" to all sensors.
     if (index >= MAX_SENSORS) {
@@ -89,13 +83,6 @@ inline void SensorDataOperation(T *sensorArray[MAX_SENSORS], MemFn OpeFunc,
 class SensorManager {
   public:
     /**
-     * @brief Initialize the SensorManager (optional placeholder).
-     *
-     * @note Provided for consistency with other managers.
-     */
-    static void initialize();
-
-    /**
      * @brief Retrieve the global SensorManager singleton instance.
      *
      * The instance is lazily created on first call and lives for the program
@@ -112,7 +99,7 @@ class SensorManager {
      * Cleans up resources held by the manager. Does not delete sensor pointers
      * (ownership remains with the caller).
      */
-    ~SensorManager() = default;
+    ~SensorManager();
 
     /**
      * @brief Subscribe a temperature sensor to the manager.
@@ -168,10 +155,6 @@ class SensorManager {
      */
     void processSoilHumData(uint8_t index = MAX_SENSORS);
 
-    void calibrateTempSensor(uint8_t index = MAX_SENSORS);
-
-    void calibrateSoilHumSensor(uint8_t index = MAX_SENSORS);
-
     /**
      * @brief Initiate reads for all registered sensors.
      *
@@ -195,10 +178,8 @@ class SensorManager {
      */
     void updateAllSensors();
 
-    void calibrateAllSensors();
-
     TempSensor *getTempSensor(uint8_t index);
-
+    
     SoilHumSensor *getSoilHumSensor(uint8_t index);
 
   private:
@@ -207,7 +188,9 @@ class SensorManager {
      *
      * Initializes internal state. Use getInstance() to obtain the singleton.
      */
-    SensorManager() = default;
+    SensorManager();
+
+    // Non-copyable, non-assignable
     SensorManager(const SensorManager &) = delete;
     SensorManager &operator=(const SensorManager &) = delete;
 
@@ -216,16 +199,14 @@ class SensorManager {
      *
      * Elements not in use are nullptr.
      */
-    TempSensor *tempSensor[MAX_SENSORS] = {nullptr, nullptr, nullptr, nullptr,
-                                           nullptr};
+    TempSensor *tempSensor[MAX_SENSORS] = {nullptr};
 
     /**
      * @brief Array of pointers to managed soil humidity sensors.
      *
      * Elements not in use are nullptr.
      */
-    SoilHumSensor *soilHumSensor[MAX_SENSORS] = {nullptr, nullptr, nullptr,
-                                                 nullptr, nullptr};
+    SoilHumSensor *soilHumSensor[MAX_SENSORS] = {nullptr};
 };
 
 } // namespace sensor
