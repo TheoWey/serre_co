@@ -13,7 +13,7 @@
  * inputs using STM32 HAL types.
  */
 
-#include "../../../../Inc/gpio.h"
+#include "../../../../../Inc/gpio.h"
 
 namespace utils {
 namespace debouncer {

@@ -1,6 +1,8 @@
 #include "main_serre.h"
 
 #include "driver/ADC_MANAGER/inc/adc_manager.hh"
+#include "driver/I2C/inc/i2c_manager.hh"
+#include "driver/LCD/inc/lcd.hh"
 #include "driver/LCD/inc/printer.hh"
 #include "driver/PWM/inc/pwm_manager.hh"
 #include "driver/UTILS/debouncer/inc/debouncer.hh"
@@ -23,20 +25,24 @@ void main_serre(void) {
         float temperature = -1000.0f;
         float soilHumidity = -1.0f;
 
-        if (sensorManager.getTempSensor(0) != nullptr) {
+        if (sensorManager.getTempSensor(temp_channel_t::TEMPERATURE_0) !=
+            nullptr) {
             temperature =
-                sensorManager.getTempSensor(0)->getTemperatureCelsius();
+                sensorManager.getTempSensor(temp_channel_t::TEMPERATURE_0)
+                    ->getTemperatureCelsius();
             float dutyCycle =
                 ((temperature * 100.0f) / 50.0f) / 100; // Scale 20-40C
             pwm::PWMManager::getInstance().setDutyCycle(
-                0, dutyCycle); // Control first PWM channel
+                pwm_channel_t::FAN, dutyCycle); // Control first PWM channel
         }
-        if (sensorManager.getSoilHumSensor(0) != nullptr) {
+        if (sensorManager.getSoilHumSensor(hum_channel_t::SOIL_HUMIDITY_0) !=
+            nullptr) {
             soilHumidity =
-                sensorManager.getSoilHumSensor(0)->getHumidityPercent();
+                sensorManager.getSoilHumSensor(hum_channel_t::SOIL_HUMIDITY_0)
+                    ->getHumidityPercent();
             float dutyCycle = (100.0f - soilHumidity) / 100.0f; // Scale 0-100%
             pwm::PWMManager::getInstance().setDutyCycle(
-                1, dutyCycle); // Control second PWM channel
+                pwm_channel_t::PUMP, dutyCycle); // Control second PWM channel
         }
         if (temperature != lastTemp + 0.5 || temperature != lastTemp - 0.5 ||
             soilHumidity != lastSoilHum + 1.0f ||
@@ -59,7 +65,7 @@ void main_serre_init(void) {
     sensor::init_sensors();
 
     print_welcome_message();
-    HAL_Delay(5000);
+    HAL_Delay(10000);
 }
 
 void utils::debouncer::init_debouncer() {
@@ -81,13 +87,15 @@ void lcd::init_lcd(void) {
                                             {DATA2_GPIO_Port, DATA2_Pin},
                                             {DATA3_GPIO_Port, DATA3_Pin}};
     lcd::gpio_pin_handler_t gpio_rs = {RS_GPIO_Port, RS_Pin};
+    lcd::gpio_pin_handler_t gpio_enable = {EN_GPIO_Port, EN_Pin};
     lcd::lcd_handler_t lcd_handler = {
         .i2c_handler = &(i2c::I2CManager::getInstance()),
-        .i2c_channel = 0,
+        .i2c_channel = i2c_channel_t::I2C_CHANNEL_0,
         .mode = lcd::LCD_MODE_I2C,
         .pin_config = {.data_pins = {gpio_data[0], gpio_data[1], gpio_data[2],
                                      gpio_data[3]},
-                       .rs = gpio_rs}};
+                       .rs = gpio_rs,
+                       .enable = gpio_enable}};
     lcd::LCD::initialize(lcd_handler);
 }
 
@@ -119,6 +127,8 @@ void sensor::init_sensors(void) {
 
 void calibrate_sensors(void) {
     sensor::SensorManager &sensorManager = sensor::SensorManager::getInstance();
-    sensorManager.getTempSensor(0)->calibrateOffset();
-    sensorManager.getSoilHumSensor(0)->calibrateOffset();
+    sensorManager.getTempSensor(temp_channel_t::TEMPERATURE_0)
+        ->calibrateOffset();
+    sensorManager.getSoilHumSensor(hum_channel_t::SOIL_HUMIDITY_0)
+        ->calibrateOffset();
 }
