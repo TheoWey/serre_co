@@ -152,10 +152,13 @@ void LCD::lcd_gpio_init() {
 
     HAL_GPIO_WritePin(this->lcd_handler.pin_config.rs.data_port,
                       this->lcd_handler.pin_config.rs.data_pin, GPIO_PIN_RESET);
+    HAL_Delay(20);
+    this->lcd_gpio_command(0x28); // Mode 4 bits, 2 lines, 5x8
     this->lcd_gpio_command(0x28); // Mode 4 bits, 2 lines, 5x8
     this->lcd_gpio_command(0x0C); // Display ON, cursor OFF
     this->lcd_gpio_command(0x06); // Increment cursor
     this->lcd_clear_gpio();
+    HAL_Delay(2);
 }
 
 void LCD::lcd_gpio_command(uint8_t cmd) {
@@ -164,6 +167,7 @@ void LCD::lcd_gpio_command(uint8_t cmd) {
 
     this->lcd_gpio_send_4bits(cmd >> 4);
     this->lcd_gpio_send_4bits(cmd & 0x0F);
+    HAL_Delay(2);
 }
 
 void LCD::lcd_gpio_send_4bits(uint8_t nibble) {
@@ -172,6 +176,7 @@ void LCD::lcd_gpio_send_4bits(uint8_t nibble) {
                           this->lcd_handler.pin_config.data_pins[i].data_pin,
                           (nibble & (1 << i)) ? GPIO_PIN_SET : GPIO_PIN_RESET);
     }
+    this->lcd_gpio_toggle_enable();
 }
 
 void LCD::lcd_write_char_gpio(uint8_t data) {
@@ -180,6 +185,7 @@ void LCD::lcd_write_char_gpio(uint8_t data) {
 
     this->lcd_gpio_send_4bits(data >> 4);
     this->lcd_gpio_send_4bits(data & 0x0F);
+    HAL_Delay(1);
 }
 
 void LCD::lcd_write_char_i2c(uint8_t data) {
@@ -216,8 +222,7 @@ void LCD::lcd_write_str(const char *str, ...) {
     char buffer[32];
     va_list args;
     va_start(args, str);
-    format_string(buffer, sizeof(buffer), reinterpret_cast<const char *>(str),
-                  args);
+    format_string(buffer, sizeof(buffer), str, args);
     va_end(args);
 
     if (this->lcd_handler.mode == LCD_MODE_GPIO) {
@@ -271,6 +276,17 @@ void LCD::lcd_goto(uint8_t row, uint8_t col) {
     } else {
         this->lcd_goto_i2c(row, col);
     }
+}
+
+void LCD::lcd_gpio_toggle_enable() {
+    HAL_GPIO_WritePin(this->lcd_handler.pin_config.enable.data_port,
+                      this->lcd_handler.pin_config.enable.data_pin,
+                      GPIO_PIN_SET);
+    HAL_Delay(1);
+    HAL_GPIO_WritePin(this->lcd_handler.pin_config.enable.data_port,
+                      this->lcd_handler.pin_config.enable.data_pin,
+                      GPIO_PIN_RESET);
+    HAL_Delay(1);
 }
 
 } // namespace lcd
