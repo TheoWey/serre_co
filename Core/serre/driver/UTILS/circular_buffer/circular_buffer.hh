@@ -12,7 +12,8 @@
 #ifndef CIRCULAR_BUFFER_HH
 #define CIRCULAR_BUFFER_HH
 
-#include "stm32g0xx_hal.h"
+#include "stddef.h"
+#include <stdint.h>
 
 namespace utils {
 namespace circular_buffer {
