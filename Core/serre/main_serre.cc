@@ -3,7 +3,6 @@
 #include "driver/ADC_MANAGER/inc/adc_manager.hh"
 #include "driver/I2C/inc/i2c_manager.hh"
 #include "driver/LCD/inc/lcd.hh"
-#include "driver/LCD/inc/printer.hh"
 #include "driver/PWM/inc/pwm_manager.hh"
 #include "driver/UTILS/debouncer/inc/debouncer.hh"
 #include "driver/sensors/inc/sensor_manager.hh"
@@ -49,7 +48,9 @@ void main_serre(void) {
             soilHumidity != lastSoilHum - 1.0f) {
             lastSoilHum = soilHumidity;
             lastTemp = temperature;
-            print_status(lastTemp, lastSoilHum);
+            lcd::LCD::getInstance().lcd_clear();
+            lcd::LCD::getInstance().lcd_write_str("Temp: %f C \nHum: %f %",
+                                                  temperature, soilHumidity);
         }
     }
 
@@ -64,20 +65,19 @@ void main_serre_init(void) {
     adc_manager::init_adc();
     sensor::init_sensors();
 
-    print_welcome_message();
     HAL_Delay(10000);
 }
 
 void utils::debouncer::init_debouncer() {
     utils::debouncer::DebouncerHandler debouncer_handlers[] = {
-        {PSH_BUT_UP_GPIO_Port, PSH_BUT_UP_Pin, 50, 0, GPIO_PIN_RESET},
-        {PSH_BUT_DOWN_GPIO_Port, PSH_BUT_DOWN_Pin, 50, 0, GPIO_PIN_RESET},
-        {PSH_BUT_SEL_GPIO_Port, PSH_BUT_SEL_Pin, 50, 0, GPIO_PIN_RESET}};
+        {PSH_BUT_UP_GPIO_Port, PSH_BUT_UP_Pin, 50, 0},
+        {PSH_BUT_DOWN_GPIO_Port, PSH_BUT_DOWN_Pin, 50, 0},
+        {PSH_BUT_SEL_GPIO_Port, PSH_BUT_SEL_Pin, 50, 0}};
     utils::debouncer::DebouncerManager::initialize(debouncer_handlers, 3);
 }
 
 void i2c::init_i2c(void) {
-    i2c::i2c_handler_t i2c_handler = {&hi2c1, 0x48 << 1, 1000, 4};
+    i2c::i2c_handler_t i2c_handler = {&hi2c1, 0x27, 1000, 4};
     i2c::I2CManager::initialize(&i2c_handler, 1);
 }
 
@@ -97,6 +97,7 @@ void lcd::init_lcd(void) {
                        .rs = gpio_rs,
                        .enable = gpio_enable}};
     lcd::LCD::initialize(lcd_handler);
+    lcd::LCD::getInstance().lcd_write_str("hello world\nSerre Co");
 }
 
 void pwm::init_pwm(void) {
