@@ -20,11 +20,28 @@
 #include "../../I2C/inc/i2c_manager.hh"
 
 namespace lcd {
+// PCF8574 Pin mapping (I2C mode)
+constexpr uint8_t LCD_RS_BIT = 0x01; /**< Register Select bit (P0) */
+constexpr uint8_t LCD_RW_BIT = 0x02; /**< Read/Write bit (P1) */
+constexpr uint8_t LCD_EN_BIT = 0x04; /**< Enable bit (P2) */
+constexpr uint8_t LCD_BL_BIT = 0x08; /**< Backlight bit (P3) */
 
 /**
  * @brief LCD operating mode.
  */
 typedef enum { LCD_MODE_I2C, LCD_MODE_GPIO } lcd_mode_t;
+// LCD Commands
+constexpr uint8_t LCD_CLEAR_CMD = 0x01;  /**< Clear display */
+constexpr uint8_t LCD_HOME_CMD = 0x02;   /**< Return home */
+constexpr uint8_t LCD_ENTRY_MODE = 0x06; /**< Entry mode: increment, no shift */
+constexpr uint8_t LCD_DISPLAY_ON =
+    0x0C; /**< Display ON, cursor OFF, blink OFF */
+constexpr uint8_t LCD_FUNCTION_SET = 0x28; /**< 4-bit mode, 2 lines, 5x8 font */
+
+// Display geometry
+constexpr uint8_t LCD_LINE1_ADDR = 0x80;
+constexpr uint8_t LCD_LINE2_ADDR = 0xC0;
+constexpr uint8_t LCD_MAX_COLS = 16;
 
 /**
  * @brief Simple GPIO pin descriptor.
@@ -60,18 +77,21 @@ typedef struct {
     lcd_gpio_config_t pin_config; /**< GPIO mapping (used in GPIO mode) */
 } lcd_handler_t;
 
+struct rc_t {
+    bool newline;
+    uint8_t length;
+};
+
 /**
  * @brief Initializes the LCD subsystem. Implemented as a weak function in
  * lcd.cc.
  */
 void init_lcd(void);
 
-void int_to_string(char *buffer, int value, int base);
-
-void float_to_string(char *buffer, float value, int precision);
-
+void int_to_string(char *buffer, size_t size, int value, int base);
+void float_to_string(char *buffer, size_t size, float value, int precision);
 void format_string(char *buffer, size_t buffer_size, const char *format,
-                   va_list args);
+                   rc_t *rc, va_list args);
 
 /**
  * @brief Singleton class providing LCD operations.
@@ -114,10 +134,17 @@ class LCD {
      * checks (e.g. I2C device ready) or pin initialization required by the
      * selected mode.
      *
+     * @return true if I2C mode selected and device ready, false if GPIO
+     * fallback
+     *
      * @note This function should be called after initialize() to activate the
      *       configured communication mode.
      */
     void lcd_select_mode();
+
+    void lcd_gpio_init();
+
+    bool lcd_i2c_init();
 
     /**
      * @brief Initialize GPIO pins for GPIO mode.
@@ -127,7 +154,7 @@ class LCD {
      *
      * @note Only meaningful when lcd_handler.mode == LCD_MODE_GPIO.
      */
-    void lcd_gpio_init();
+    bool lcd_init();
 
     /**
      * @brief Send a command byte to the LCD using GPIO.
@@ -153,6 +180,10 @@ class LCD {
      */
     void lcd_gpio_send_4bits(uint8_t nibble);
 
+    bool lcd_i2c_write_byte(uint8_t data, bool is_data);
+
+    bool lcd_i2c_send_nibble(uint8_t nibble);
+
     /**
      * @brief Send character data to the LCD using GPIO.
      *
@@ -165,11 +196,11 @@ class LCD {
      * @note The cursor automatically advances after each character according
      *       to the LCD's entry mode setting.
      */
-    void lcd_write_char_gpio(uint8_t data);
+    bool lcd_write_char_gpio(uint8_t data);
 
-    void lcd_write_char_i2c(uint8_t data);
+    bool lcd_write_char_i2c(uint8_t data);
 
-    void lcd_write_char(uint8_t data);
+    bool lcd_write_char(uint8_t data);
 
     /**
      * @brief Send a NUL-terminated string to the LCD using GPIO mode.
@@ -186,17 +217,13 @@ class LCD {
      *       what the controller provides; callers should position the cursor
      *       appropriately (e.g. via lcd_goto_gpio()).
      */
-    void lcd_write_str_gpio(const char *str);
-
-    void lcd_write_str_i2c(const char *str);
-
-    void lcd_write_str(const char *str, ...);
+    bool lcd_write_str(const char *str, ...);
 
     void lcd_clear_gpio();
 
-    void lcd_clear_i2c();
+    bool lcd_clear_i2c();
 
-    void lcd_clear();
+    bool lcd_clear();
 
     /**
      * @brief Position the LCD cursor (GPIO mode).
@@ -217,9 +244,9 @@ class LCD {
      */
     void lcd_goto_gpio(uint8_t row, uint8_t col);
 
-    void lcd_goto_i2c(uint8_t row, uint8_t col);
+    bool lcd_goto_i2c(uint8_t row, uint8_t col);
 
-    void lcd_goto(uint8_t row, uint8_t col);
+    bool lcd_goto(uint8_t row, uint8_t col);
 
     void lcd_gpio_toggle_enable();
 
