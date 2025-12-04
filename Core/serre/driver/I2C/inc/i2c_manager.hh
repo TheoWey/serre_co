@@ -10,6 +10,9 @@
  * This header file defines the interface for the I2C manager, including
  * initialization and basic operations. It supports I2C communication using
  * STM32 HAL types.
+ * @note This file has to be updated for correct non-blocking mode
+ * implementation. Currently, only blocking mode is supported even if DMA is
+ * active and implemented.
  */
 
 #include "../../../../Inc/i2c.h"
@@ -25,11 +28,11 @@
  */
 #define ping(i2c_handler_ptr)                                                  \
     HAL_I2C_IsDeviceReady((i2c_handler_ptr).hi2c, (i2c_handler_ptr).address,   \
-                          (i2c_handler_ptr).retry, (i2c_handler_ptr).timeout)
+                          (i2c_handler_ptr).timeout, (i2c_handler_ptr).retry)
 
 namespace i2c {
 
-// #define BLOCKING_MODE /**< Enable blocking mode for I2C operations */
+#define BLOCKING_MODE /**< Enable blocking mode for I2C operations */
 
 const uint8_t I2C_CHANNELS = 2; /**< Number of supported I2C channels */
 /**

@@ -10,6 +10,7 @@ void I2CManager::initialize(i2c_handler_t *i2c_handlers, size_t num_channels) {
     I2CManager &instance = getInstance();
     for (size_t i = 0; i < num_channels && i < I2C_CHANNELS; i++) {
         instance.i2c_handler[i] = i2c_handlers[i];
+        instance.i2c_handler[i].address = i2c_handlers[i].address << 1;
         instance.initialized[i] = true;
     }
 }
@@ -68,7 +69,6 @@ __weak HAL_StatusTypeDef i2c_read_helper(i2c_handler_t handler, uint8_t *data,
 
 __weak HAL_StatusTypeDef i2c_write_helper(i2c_handler_t handler, uint8_t *data,
                                           size_t datasize) {
-
     return HAL_I2C_Master_Transmit_DMA(handler.hi2c, handler.address, data,
                                        datasize);
 }
