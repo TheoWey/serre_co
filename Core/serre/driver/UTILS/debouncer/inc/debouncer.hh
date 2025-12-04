@@ -20,6 +20,9 @@ namespace debouncer {
 
 const uint8_t DEBOUNCER_CHANNELS = 5; /**< Number of supported debouncer
                                        * channels */
+
+enum class Button_Event_t : uint8_t { NONE = 0, SHORT_PRESS, LONG_PRESS };
+
 /**
  * @brief Debouncer handler configuration.
  *
@@ -27,11 +30,12 @@ const uint8_t DEBOUNCER_CHANNELS = 5; /**< Number of supported debouncer
  * timing parameters, and internal state.
  */
 typedef struct {
-    GPIO_TypeDef *port;   /**< Pointer to HAL GPIO port */
-    uint16_t pin;         /**< GPIO pin mask/number */
-    uint32_t sample_time; /**< Time in ms for stable state sampling */
-    uint32_t last_change; /**< Timestamp of the last state change */
-    GPIO_PinState state;  /**< Current debounced state */
+    GPIO_TypeDef *port;       /**< Pointer to HAL GPIO port */
+    uint16_t pin;             /**< GPIO pin mask/number */
+    uint32_t debounce_time;   /**< Time in ms for stable state sampling */
+    uint32_t long_press_time; /**< Time in ms for long press detection */
+    uint32_t last_change;     /**< Timestamp of the last state change */
+    Button_Event_t state;     /**< Current debounced state */
 } DebouncerHandler;
 
 void init_debouncer(void);
@@ -58,8 +62,20 @@ class Debouncer {
      * @brief Get the current debounced GPIO state.
      * @return The current debounced GPIO state.
      */
-    inline GPIO_PinState getState() const {
+    inline Button_Event_t getState() const {
         return debouncer_handler.state;
+    }
+
+    inline void setLongPressTime(uint32_t time_ms) {
+        if (time_ms > this->debouncer_handler.debounce_time) {
+            debouncer_handler.long_press_time = time_ms;
+        }
+    }
+
+    inline void setDebounceTime(uint32_t time_ms) {
+        if (time_ms < this->debouncer_handler.long_press_time) {
+            debouncer_handler.debounce_time = time_ms;
+        }
     }
 
     inline GPIO_TypeDef *getPort() const {
@@ -69,6 +85,7 @@ class Debouncer {
   private:
     DebouncerHandler debouncer_handler; /**< Active configuration for the
                                          * debouncer */
+    GPIO_PinState last_sampled_state_ = GPIO_PIN_RESET;
 };
 
 class DebouncerManager {
@@ -88,9 +105,11 @@ class DebouncerManager {
         return this->debouncers[index];
     }
 
-    void updateDebouncer(size_t index);
+    void updateDebouncer(size_t index = DEBOUNCER_CHANNELS);
 
-    void updateAllDebouncers();
+    inline void updateAllDebouncers() {
+        this->updateDebouncer();
+    };
 
   private:
     DebouncerManager() = default;
@@ -98,11 +117,16 @@ class DebouncerManager {
     DebouncerManager &operator=(const DebouncerManager &) = delete;
 
     Debouncer debouncers[DEBOUNCER_CHANNELS] = {
-        Debouncer(DebouncerHandler({nullptr, 0, 0, 0, GPIO_PIN_RESET})),
-        Debouncer(DebouncerHandler({nullptr, 0, 0, 0, GPIO_PIN_RESET})),
-        Debouncer(DebouncerHandler({nullptr, 0, 0, 0, GPIO_PIN_RESET})),
-        Debouncer(DebouncerHandler({nullptr, 0, 0, 0, GPIO_PIN_RESET})),
-        Debouncer(DebouncerHandler({nullptr, 0, 0, 0, GPIO_PIN_RESET}))};
+        Debouncer(
+            DebouncerHandler({nullptr, 0, 0, 0, 0, Button_Event_t::NONE})),
+        Debouncer(
+            DebouncerHandler({nullptr, 0, 0, 0, 0, Button_Event_t::NONE})),
+        Debouncer(
+            DebouncerHandler({nullptr, 0, 0, 0, 0, Button_Event_t::NONE})),
+        Debouncer(
+            DebouncerHandler({nullptr, 0, 0, 0, 0, Button_Event_t::NONE})),
+        Debouncer(
+            DebouncerHandler({nullptr, 0, 0, 0, 0, Button_Event_t::NONE}))};
 };
 
 } // namespace debouncer

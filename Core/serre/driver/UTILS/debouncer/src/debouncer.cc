@@ -8,18 +8,26 @@ __WEAK void init_debouncer(void) {
 }
 
 void Debouncer::update() {
-    GPIO_PinState current_state =
-        HAL_GPIO_ReadPin(debouncer_handler.port, debouncer_handler.pin);
-    uint32_t current_time = HAL_GetTick();
+    GPIO_PinState current_state = HAL_GPIO_ReadPin(this->debouncer_handler.port,
+                                                   this->debouncer_handler.pin);
+    uint32_t current_tick = HAL_GetTick();
+    uint32_t elapsed = current_tick - this->debouncer_handler.last_change;
 
-    if (current_state != debouncer_handler.state) {
-        if ((current_time - debouncer_handler.last_change) >=
-            debouncer_handler.sample_time) {
-            debouncer_handler.state = current_state;
-            debouncer_handler.last_change = current_time;
+    if (current_state != this->last_sampled_state_) {
+        // State has changed; reset the timer
+        this->debouncer_handler.last_change = current_tick;
+        this->last_sampled_state_ = current_state;
+        this->debouncer_handler.state = Button_Event_t::NONE;
+    } else if ((elapsed >= this->debouncer_handler.debounce_time) && 
+               (current_state == GPIO_PIN_SET)) {
+        // State stable and pressed
+        if (elapsed >= this->debouncer_handler.long_press_time) {
+            this->debouncer_handler.state = Button_Event_t::LONG_PRESS;
+        } else {
+            this->debouncer_handler.state = Button_Event_t::SHORT_PRESS;
         }
-    } else {
-        debouncer_handler.last_change = current_time;
+    } else if (current_state == GPIO_PIN_RESET) {
+        this->debouncer_handler.state = Button_Event_t::NONE;
     }
 }
 
@@ -45,16 +53,6 @@ void DebouncerManager::updateDebouncer(size_t index) {
     }
     if (this->debouncers[index].getPort() != nullptr) {
         this->debouncers[index].update();
-    }
-}
-
-void DebouncerManager::updateAllDebouncers() {
-    for (size_t i = 0; i < DEBOUNCER_CHANNELS; ++i) {
-        if (this->debouncers[i].getPort() != nullptr) {
-            this->debouncers[i].update();
-        } else {
-            break;
-        }
     }
 }
 
