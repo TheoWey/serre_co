@@ -20,12 +20,12 @@ void SerreController::processLoop() {
         if (currentTick - this->lastSensorUpdateTick_ >=
             this->sensorUpdatePeriodMs_) {
             this->lastSensorUpdateTick_ = currentTick;
-            sensor_update_loop();
+            this->sensor_update_loop();
         }
         if (currentTick - this->lastPwmUpdateTick_ >=
             this->pwmUpdatePeriodMs_) {
             this->lastPwmUpdateTick_ = currentTick;
-            pwm_control_loop();
+            this->pwm_control_loop();
         }
         break;
     case SerreMode::SETTING:
@@ -45,27 +45,23 @@ void SerreController::processLoop() {
     }
 }
 
-void pwm_control_loop(void) {
+void SerreController::pwm_control_loop(void) {
     using namespace driver::pwm;
     if (driver::sensor::SensorManager::getInstance().getTempSensor(
             temp_channel_t::TEMPERATURE_0) != nullptr) {
         float temperature = driver::sensor::SensorManager::getInstance()
                                 .getTempSensor(temp_channel_t::TEMPERATURE_0)
                                 ->getTemperatureCelsius();
-        if (temperature <
-            20.0f) { //------ set parameter to select temperature of
-                     // activation/deactivation with hysteresis
+        if (temperature < this->temperatureResetPoint_) {
             PWMManager::getInstance().enable(pwm_channel_t::FAN, false);
-            PWMManager::getInstance().setDutyCycle(pwm_channel_t::FAN,
-                                                   0); // Turn off fan
-        } else if (temperature > 20.0f) {              //------ set parameter to
-            // select temperature of
-            // activation/deactivation with hysteresis
+            PWMManager::getInstance().setDutyCycle(pwm_channel_t::FAN, 0);
+        } else if (temperature > this->temperatureSetpoint_) {
             PWMManager::getInstance().enable(pwm_channel_t::FAN, true);
-            float dutyCycle = ((temperature * 100.0f) / 50.0f); // Scale 20-40C
-            PWMManager::getInstance().setDutyCycle(
-                pwm_channel_t::FAN,
-                dutyCycle); // Control first PWM channel
+            float dutyCycle = ((temperature - this->temperatureResetPoint_) /
+                               (60.0f - this->temperatureResetPoint_)) *
+                              100.0f;
+            PWMManager::getInstance().setDutyCycle(pwm_channel_t::FAN,
+                                                   dutyCycle);
         }
     }
     if (driver::sensor::SensorManager::getInstance().getSoilHumSensor(
@@ -74,26 +70,22 @@ void pwm_control_loop(void) {
             driver::sensor::SensorManager::getInstance()
                 .getSoilHumSensor(hum_channel_t::SOIL_HUMIDITY_0)
                 ->getHumidityPercent();
-        if (soilHumidity < 20.0f) { //------ set parameter to
-                                    // select humidity of
-                                    // activation/deactivation with hysteresis
+        if (soilHumidity < this->humidityResetPoint_) {
             PWMManager::getInstance().enable(pwm_channel_t::PUMP, false);
-            PWMManager::getInstance().setDutyCycle(pwm_channel_t::PUMP,
-                                                   0); // Turn off pump
-        } else if (soilHumidity >
-                   40.0f) { //------ set parameter to
-                            // select humidity of
-                            // activation/deactivation with hysteresis
+            PWMManager::getInstance().setDutyCycle(pwm_channel_t::PUMP, 0);
+        } else if (soilHumidity > this->humiditySetpoint_) {
             PWMManager::getInstance().enable(pwm_channel_t::PUMP, true);
-            float dutyCycle = (100.0f - soilHumidity); // Scale0-100%
-            PWMManager::getInstance().setDutyCycle(
-                pwm_channel_t::PUMP,
-                dutyCycle); // Control second PWMchannel
+            float dutyCycle =
+                ((soilHumidity - this->humidityResetPoint_) /
+                 (this->humiditySetpoint_ - this->humidityResetPoint_)) *
+                100.0f;
+            PWMManager::getInstance().setDutyCycle(pwm_channel_t::PUMP,
+                                                   dutyCycle);
         }
     }
 }
 
-void sensor_update_loop(void) {
+void SerreController::sensor_update_loop(void) {
     using namespace driver::sensor;
     SensorManager::getInstance().updateAllSensors();
 }
