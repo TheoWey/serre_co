@@ -17,7 +17,7 @@ class MainPage : public MenuPage {
     void onLongPressDown() override;
     void onLongPressSelect() override;
 
-    MenuState getNextState() const override {
+    inline MenuState getNextState() const override {
         return nextState_;
     }
 
