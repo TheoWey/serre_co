@@ -30,6 +30,7 @@
     HAL_I2C_IsDeviceReady((i2c_handler_ptr).hi2c, (i2c_handler_ptr).address,   \
                           (i2c_handler_ptr).timeout, (i2c_handler_ptr).retry)
 
+namespace driver {
 namespace i2c {
 
 #define BLOCKING_MODE /**< Enable blocking mode for I2C operations */
@@ -121,4 +122,5 @@ HAL_StatusTypeDef i2c_write_helper(i2c_handler_t handler, uint8_t *data,
 HAL_StatusTypeDef i2c_read_helper(i2c_handler_t handler, uint8_t *data,
                                   size_t datasize);
 } // namespace i2c
+} // namespace driver
 #endif // __I2C_MANAGER_HH__
