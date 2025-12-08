@@ -1,5 +1,6 @@
 #include "../inc/lcd.hh"
 
+namespace driver {
 namespace lcd {
 
 __WEAK void init_lcd(void) {
@@ -448,3 +449,4 @@ void LCD::lcd_gpio_toggle_enable() {
 }
 
 } // namespace lcd
+} // namespace driver

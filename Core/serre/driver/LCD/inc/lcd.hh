@@ -19,7 +19,9 @@
 
 #include "../../I2C/inc/i2c_manager.hh"
 
+namespace driver {
 namespace lcd {
+
 // PCF8574 Pin mapping (I2C mode)
 constexpr uint8_t LCD_RS_BIT = 0x01; /**< Register Select bit (P0) */
 constexpr uint8_t LCD_RW_BIT = 0x02; /**< Read/Write bit (P1) */
@@ -257,6 +259,8 @@ class LCD {
 
     lcd_handler_t lcd_handler; /**< Active configuration for the LCD */
 };
+
 } // namespace lcd
+} // namespace driver
 
 #endif // LCD_HH
