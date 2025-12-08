@@ -15,6 +15,7 @@
 #include "../../../../Inc/dma.h"
 #include "../../../../Inc/tim.h"
 
+namespace driver {
 namespace adc_manager {
 
 /**
@@ -107,5 +108,6 @@ class ADCManager {
 };
 
 } // namespace adc_manager
+} // namespace driver
 
 #endif // ADC_MANAGER_HH
