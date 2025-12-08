@@ -1,5 +1,6 @@
 #include "../inc/pwm_manager.hh"
 
+namespace driver {
 namespace pwm {
 
 __WEAK void init_pwm(void) {
@@ -89,3 +90,4 @@ void PWMManager::enable(size_t index, bool on) {
 }
 
 } // namespace pwm
+} // namespace driver
