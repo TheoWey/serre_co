@@ -3,12 +3,12 @@
 #include "UTILS/menu_controler/inc/menu_controler.hh"
 
 #include "UTILS/debouncer/inc/debouncer.hh"
+#include "UTILS/mae_serre/inc/mae_serre.hh"
 #include "driver/ADC_MANAGER/inc/adc_manager.hh"
 #include "driver/I2C/inc/i2c_manager.hh"
 #include "driver/LCD/inc/lcd.hh"
 #include "driver/PWM/inc/pwm_manager.hh"
 #include "driver/sensors/inc/sensor_manager.hh"
-#include "utils/mae_serre/inc/mae_serre.hh"
 
 void main_serre(void) {
     utils::ui::UIControler::getInstance().update();
