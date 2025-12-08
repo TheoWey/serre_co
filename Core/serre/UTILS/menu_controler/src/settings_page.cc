@@ -12,7 +12,7 @@ void SettingsPage::display() {
         this->selParameter_ == display_parameter_t::PARAMETER_ACTUATOR) {
         lcd.lcd_write_str("Sens. Settings\nActu. Settings");
     } else {
-        lcd.lcd_write_str("Backlight\nBrightness");
+        lcd.lcd_write_str("Setpoint Settings\n");
     }
 
     uint8_t cursorRow = static_cast<uint8_t>(this->selParameter_) % 2;
@@ -23,15 +23,14 @@ void SettingsPage::display() {
 void SettingsPage::onButtonUp() {
     this->selParameter_ =
         (this->selParameter_ == display_parameter_t::PARAMETER_SENSOR)
-            ? display_parameter_t::PARAMETER_BACKLIGHT_BRIGHTNESS
+            ? display_parameter_t::PARAMETER_SETPOINT
             : static_cast<display_parameter_t>(
                   static_cast<uint8_t>(this->selParameter_) - 1);
 }
 
 void SettingsPage::onButtonDown() {
     this->selParameter_ =
-        (this->selParameter_ ==
-         display_parameter_t::PARAMETER_BACKLIGHT_BRIGHTNESS)
+        (this->selParameter_ == display_parameter_t::PARAMETER_SETPOINT)
             ? display_parameter_t::PARAMETER_SENSOR
             : static_cast<display_parameter_t>(
                   static_cast<uint8_t>(this->selParameter_) + 1);
