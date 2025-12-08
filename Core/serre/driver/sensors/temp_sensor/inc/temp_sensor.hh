@@ -55,10 +55,15 @@ class TempSensor final : public Sensor {
      */
     void setThreshold(float minTemp, float maxTemp);
 
+    inline void setOffset(uint16_t real_temp) {
+        this->m_offset = this->m_temperature - real_temp;
+    }
+
   private:
     float m_temperature = 0.0f;    ///< Current temperature value.
     float m_minThreshold = -40.0f; ///< Minimum temperature threshold.
     float m_maxThreshold = 85.0f;  ///< Maximum temperature threshold.
+    int16_t m_offset = 0;          ///< Calibration offset.
 
     static constexpr float KELVIN_OFFSET = 273.15f;
     static constexpr float ADC_MAX_VALUE = 4095.0f; // Assuming a 12-bit ADC
