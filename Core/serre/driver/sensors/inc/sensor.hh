@@ -2,14 +2,15 @@
 #define SENSOR_HH
 
 // Includes
+#include "../../../UTILS/circular_buffer/circular_buffer.hh"
 #include "../../ADC_MANAGER/inc/adc_manager.hh"
-#include "../../UTILS/circular_buffer/circular_buffer.hh"
 
 /**
  * @namespace sensor
  * @brief Contains classes and methods for handling various sensors.
  */
 
+namespace driver {
 namespace sensor {
 
 /**
@@ -60,5 +61,5 @@ class Sensor {
 };
 
 } // namespace sensor
-
+} // namespace driver
 #endif // SENSOR_HH

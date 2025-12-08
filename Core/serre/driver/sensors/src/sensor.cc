@@ -1,5 +1,6 @@
 #include "../inc/sensor.hh"
 
+namespace driver {
 namespace sensor {
 
 Sensor::Sensor(adc_manager::ADCManager *adcManager, uint8_t numChannels) {
@@ -30,3 +31,4 @@ Sensor::~Sensor() {
 }
 
 } // namespace sensor
+} // namespace driver

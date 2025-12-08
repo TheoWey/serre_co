@@ -16,6 +16,7 @@
 #include "../soil_hum_sensor/inc/soil_hum.hh"
 #include "../temp_sensor/inc/temp_sensor.hh"
 
+namespace driver {
 namespace sensor {
 
 /**
@@ -229,5 +230,6 @@ class SensorManager {
 };
 
 } // namespace sensor
+} // namespace driver
 
 #endif // SENSOR_MANAGER_HH

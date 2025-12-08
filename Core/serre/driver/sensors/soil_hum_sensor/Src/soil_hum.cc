@@ -1,5 +1,6 @@
 #include "../inc/soil_hum.hh"
 
+namespace driver {
 namespace sensor {
 
 SoilHumSensor::SoilHumSensor(adc_manager::ADCManager *adcManager,
@@ -51,3 +52,4 @@ SoilHumSensor::~SoilHumSensor() {
 }
 
 } // namespace sensor
+} // namespace driver
