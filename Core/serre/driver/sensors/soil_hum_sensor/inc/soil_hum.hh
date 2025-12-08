@@ -43,6 +43,11 @@ class SoilHumSensor final : public Sensor {
      */
     void calibrate(uint16_t dryValue, uint16_t wetValue);
 
+    inline void getCalibration(uint16_t &dryValue, uint16_t &wetValue) const {
+        dryValue = this->m_dryCalibration;
+        wetValue = this->m_wetCalibration;
+    }
+
   private:
     float m_humidityPercent = 0.0f;   ///< The calculated humidity percentage.
     uint16_t m_dryCalibration = 4095; ///< Calibration value for dry soil.

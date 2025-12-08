@@ -14,23 +14,23 @@ TempSensor::TempSensor(adc_manager::ADCManager *adcManager, uint8_t numChannels)
 void TempSensor::processData() {
     sensor::Sensor::processData();
     this->m_processedValue = (3.3f * this->m_processedValue) / ADC_MAX_VALUE;
-    this->m_temperature =
-        (static_cast<float>(this->m_processedValue) - 0.5) * this->SENSOR_SLOPE;
+    this->m_temperature = ((static_cast<float>(this->m_processedValue) - 0.5) *
+                           this->SENSOR_SLOPE);
     // Validate the temperature data
     this->m_dataValid = (this->m_temperature >= this->m_minThreshold) &&
                         (this->m_temperature <= this->m_maxThreshold);
 }
 
 float TempSensor::getTemperatureCelsius() const {
-    return this->m_temperature;
+    return this->m_temperature - this->m_offset;
 }
 
 float TempSensor::getTemperatureFahrenheit() const {
-    return this->m_temperature * (9.0f / 5.0f) + 32.0f;
+    return (this->m_temperature - this->m_offset) * (9.0f / 5.0f) + 32.0f;
 }
 
 float TempSensor::getTemperatureKelvin() const {
-    return this->m_temperature + this->KELVIN_OFFSET;
+    return this->m_temperature + this->KELVIN_OFFSET - this->m_offset;
 }
 
 bool TempSensor::isTemperatureValid() const {
