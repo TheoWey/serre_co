@@ -26,7 +26,7 @@ class PWMEditPage : public EditPage {
     void navigateSelection(int8_t direction) override;
 
     // Getter
-    pwm_channel_t getSelectedChannel() const {
+    inline pwm_channel_t getSelectedChannel() const {
         return selectedChannel_;
     }
 

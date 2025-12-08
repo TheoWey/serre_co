@@ -15,10 +15,10 @@ class SensorTypeSelectPage : public NavigablePage {
     void onButtonUp() override;
     void onButtonDown() override;
     void onButtonSelect() override;
-    SensorType getSelectedType() const {
+    inline SensorType getSelectedType() const {
         return selectedType_;
     }
-    MenuState getNextState() const override {
+    inline MenuState getNextState() const override {
         return MenuState::SENSOR_NUMBER_SELECT;
     }
 

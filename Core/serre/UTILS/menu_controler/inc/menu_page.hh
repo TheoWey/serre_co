@@ -25,6 +25,11 @@ enum pwm_channel_t { FAN, PUMP };
 
 enum bebouncer_channel_t { BUTTON_UP, BUTTON_DOWN, BUTTON_SELECT };
 
+enum class HysteresisParameter : uint8_t {
+    TEMPERATURE_HYSTERESIS,
+    HUMIDITY_HYSTERESIS
+};
+
 namespace utils {
 namespace ui {
 
@@ -35,7 +40,10 @@ enum class MenuState {
     SENSORS_PARAMETER,
     SENSOR_NUMBER_SELECT,
     TEMP_OFFSET_EDIT,
-    HUMIDITY_CALIB_EDIT
+    HUMIDITY_CALIB_EDIT,
+    SETPOINT_TYPE_SELECT,
+    SETPOINT_MODE_SELECT,
+    SETPOINT_VALUE_EDIT
 };
 
 enum class display_phase_t { DISPLAY_TEMP_HUM, DISPLAY_PWM };
@@ -43,7 +51,7 @@ enum class display_phase_t { DISPLAY_TEMP_HUM, DISPLAY_PWM };
 enum class display_parameter_t {
     PARAMETER_SENSOR,
     PARAMETER_ACTUATOR,
-    PARAMETER_BACKLIGHT_BRIGHTNESS
+    PARAMETER_SETPOINT
 };
 
 class MenuPage {
