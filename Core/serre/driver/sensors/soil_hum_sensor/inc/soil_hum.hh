@@ -3,6 +3,7 @@
 
 #include "../../inc/sensor.hh"
 
+namespace driver {
 namespace sensor {
 
 /**
@@ -49,5 +50,6 @@ class SoilHumSensor final : public Sensor {
 };
 
 } // namespace sensor
+} // namespace driver
 
 #endif // SOIL_HUM_SENSOR_HH

@@ -3,6 +3,7 @@
 
 #include "../../inc/sensor.hh"
 
+namespace driver {
 namespace sensor {
 
 /**
@@ -65,5 +66,6 @@ class TempSensor final : public Sensor {
 };
 
 } // namespace sensor
+} // namespace driver
 
 #endif // TEMP_SENSOR_HH
