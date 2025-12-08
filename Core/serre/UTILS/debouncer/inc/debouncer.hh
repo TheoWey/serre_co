@@ -13,13 +13,16 @@
  * inputs using STM32 HAL types.
  */
 
-#include "../../../../../Inc/gpio.h"
+#include "../../../../Inc/gpio.h"
 
 namespace utils {
 namespace debouncer {
 
 const uint8_t DEBOUNCER_CHANNELS = 5; /**< Number of supported debouncer
                                        * channels */
+
+const GPIO_PinState pressed = GPIO_PIN_RESET;
+const GPIO_PinState released = GPIO_PIN_SET;
 
 enum class Button_Event_t : uint8_t { NONE = 0, SHORT_PRESS, LONG_PRESS };
 
@@ -82,10 +85,15 @@ class Debouncer {
         return debouncer_handler.port;
     }
 
+    inline void clearState() {
+        debouncer_handler.state = Button_Event_t::NONE;
+    }
+
   private:
     DebouncerHandler debouncer_handler; /**< Active configuration for the
                                          * debouncer */
-    GPIO_PinState last_sampled_state_ = GPIO_PIN_RESET;
+    GPIO_PinState last_sampled_state_ = released;
+    bool long_press_emitted_ = false;
 };
 
 class DebouncerManager {
@@ -97,12 +105,12 @@ class DebouncerManager {
 
     static DebouncerManager &getInstance();
 
-    inline Debouncer getDebouncer(size_t index) {
+    inline Debouncer *getDebouncer(size_t index) {
         if (index >= DEBOUNCER_CHANNELS ||
             this->debouncers[index].getPort() == nullptr) {
             Error_Handler();
         }
-        return this->debouncers[index];
+        return &this->debouncers[index];
     }
 
     void updateDebouncer(size_t index = DEBOUNCER_CHANNELS);
