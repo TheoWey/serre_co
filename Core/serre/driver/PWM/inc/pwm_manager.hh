@@ -15,7 +15,9 @@
  * enable/disable all PWM channels collectively.
  */
 
+namespace driver {
 namespace pwm {
+
 /**
  * @brief PWM Manager class.
  *
@@ -138,9 +140,11 @@ class PWMManager {
     bool initialized[MAX_PWM_CHANNELS] = {
         false, false, false, false, false,
         false, false, false, false, false}; ///< Track initialized channels
-        
-    size_t active_channels_ = 0;            ///< Number of active PWM channels
+
+    size_t active_channels_ = 0; ///< Number of active PWM channels
 };
 
 } // namespace pwm
+} // namespace driver
+
 #endif // PWM_MANAGER_HH

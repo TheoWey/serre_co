@@ -15,6 +15,7 @@
  * and provides an API to change them.
  */
 
+namespace driver {
 namespace pwm {
 
 /**
@@ -56,7 +57,11 @@ class PWM {
      *
      * Values outside the range will be clamped by the implementation.
      */
-    void setDutyCycle(float duty_ratio);
+    void setDutyCycle(uint8_t duty_ratio);
+
+    inline uint8_t getDutyCycle() const {
+        return this->m_duty;
+    }
 
     /**
      * @brief Enable or disable the PWM output.
@@ -74,10 +79,11 @@ class PWM {
   private:
     pwm_handler_t m_handler; ///< PWM handler structure. */
     uint32_t m_period = 0;   ///< Timer period value cached at construction. */
-    float m_duty = 0.0f;     ///< Currently set duty ratio [0.0, 1.0]. */
+    uint8_t m_duty = 0;      ///< Currently set duty ratio [0.0, 1.0]. */
     bool m_enabled = false;  ///< Output enabled state. */
 };
 
 } // namespace pwm
+} // namespace driver
 
 #endif // PWM_HH
