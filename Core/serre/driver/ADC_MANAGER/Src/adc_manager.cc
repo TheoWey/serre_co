@@ -11,6 +11,7 @@
 
 #include "../inc/adc_manager.hh"
 
+namespace driver {
 namespace adc_manager {
 
 __WEAK void init_adc(void) {
@@ -74,3 +75,4 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 
     adc_manager::ADCManager::getInstance().setConversionCompleteFlag(true);
 }
+} // namespace driver
