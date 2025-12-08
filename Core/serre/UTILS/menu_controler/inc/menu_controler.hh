@@ -1,6 +1,7 @@
 #ifndef MENU_CONTROLER_HH
 #define MENU_CONTROLER_HH
 
+#include "hysteresis_settings.hh"
 #include "main_page.hh"
 #include "menu_page.hh"
 #include "pwm_edit_page.hh"
@@ -25,6 +26,22 @@ class UIControler {
         this->delta_m = delta;
     }
 
+    inline void setCurrentMenu(MenuState menuType) {
+        switch (menuType) {
+        case MenuState::MAIN:
+            this->switchToPage_(MenuState::MAIN);
+            break;
+        case MenuState::SETTINGS:
+            this->switchToPage_(MenuState::SETTINGS);
+            break;
+        default:
+            break;
+        }
+    }
+    inline uint32_t getLastActionTick() const {
+        return this->lastActionTick_;
+    }
+
   private:
     UIControler();
     UIControler(const UIControler &) = delete;
@@ -38,6 +55,9 @@ class UIControler {
     SensorNumberSelectPage sensorNumberSelectPage_;
     TempOffsetEditPage tempOffsetEditPage_;
     HumidityCalibEditPage humidityCalibEditPage_;
+    SetpointTypeSelectPage setpointTypeSelectPage_;
+    SetpointModeSelectPage setpointModeSelectPage_;
+    SetpointValueEditPage setpointValueEditPage_;
 
     MenuState currentState_;
     EditMode editMode_;
@@ -46,6 +66,7 @@ class UIControler {
     uint32_t lastSwitchTick_;
     uint32_t switchPeriodMs_;
     uint32_t welcomeDurationMs_;
+    uint32_t lastActionTick_;
     uint8_t delta_m;
 
     void pollButtons_();

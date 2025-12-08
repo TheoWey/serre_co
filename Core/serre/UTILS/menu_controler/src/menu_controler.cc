@@ -71,22 +71,26 @@ void UIControler::pollButtons_() {
 
     if (buttons[bebouncer_channel_t::BUTTON_UP]->getState() ==
         utils::debouncer::Button_Event_t::SHORT_PRESS) {
+        this->lastActionTick_ = HAL_GetTick();
         this->handleButtonUp_();
         buttons[bebouncer_channel_t::BUTTON_UP]->clearState();
     }
     if (buttons[bebouncer_channel_t::BUTTON_DOWN]->getState() ==
         utils::debouncer::Button_Event_t::SHORT_PRESS) {
+        this->lastActionTick_ = HAL_GetTick();
         this->handleButtonDown_();
         buttons[bebouncer_channel_t::BUTTON_DOWN]->clearState();
     }
     if (buttons[bebouncer_channel_t::BUTTON_SELECT]->getState() ==
         utils::debouncer::Button_Event_t::SHORT_PRESS) {
+        this->lastActionTick_ = HAL_GetTick();
         this->handleButtonSelect_();
         buttons[bebouncer_channel_t::BUTTON_SELECT]->clearState();
     }
 
     if (buttons[bebouncer_channel_t::BUTTON_SELECT]->getState() ==
         utils::debouncer::Button_Event_t::LONG_PRESS) {
+        this->lastActionTick_ = HAL_GetTick();
         this->handleLongPressSelect_();
         buttons[bebouncer_channel_t::BUTTON_SELECT]->clearState();
     }
@@ -115,6 +119,15 @@ void UIControler::handleButtonUp_() {
             break;
         case MenuState::HUMIDITY_CALIB_EDIT:
             this->humidityCalibEditPage_.onButtonUp();
+            break;
+        case MenuState::SETPOINT_TYPE_SELECT:
+            this->setpointTypeSelectPage_.onButtonUp();
+            break;
+        case MenuState::SETPOINT_MODE_SELECT:
+            this->setpointModeSelectPage_.onButtonUp();
+            break;
+        case MenuState::SETPOINT_VALUE_EDIT:
+            this->setpointValueEditPage_.onButtonUp();
             break;
         default:
             break;
@@ -151,6 +164,15 @@ void UIControler::handleButtonDown_() {
         case MenuState::HUMIDITY_CALIB_EDIT:
             this->humidityCalibEditPage_.onButtonDown();
             break;
+        case MenuState::SETPOINT_TYPE_SELECT:
+            this->setpointTypeSelectPage_.onButtonDown();
+            break;
+        case MenuState::SETPOINT_MODE_SELECT:
+            this->setpointModeSelectPage_.onButtonDown();
+            break;
+        case MenuState::SETPOINT_VALUE_EDIT:
+            this->setpointValueEditPage_.onButtonDown();
+            break;
         default:
             break;
         }
@@ -172,6 +194,9 @@ void UIControler::handleButtonSelect_() {
             } else if (this->settingsPage_.getSelectedParameter() ==
                        display_parameter_t::PARAMETER_SENSOR) {
                 this->switchToPage_(MenuState::SENSORS_PARAMETER);
+            } else if (this->settingsPage_.getSelectedParameter() ==
+                       display_parameter_t::PARAMETER_SETPOINT) {
+                this->switchToPage_(MenuState::SETPOINT_TYPE_SELECT);
             }
             break;
         case MenuState::PWM_EDIT:
@@ -205,6 +230,22 @@ void UIControler::handleButtonSelect_() {
         case MenuState::HUMIDITY_CALIB_EDIT:
             this->editMode_ = EditMode::EDITING;
             this->humidityCalibEditPage_.onEnterEditMode();
+            this->displayCurrentPage_();
+            break;
+        case MenuState::SETPOINT_TYPE_SELECT:
+            this->setpointModeSelectPage_.setType(
+                this->setpointTypeSelectPage_.getSelectedType());
+            this->switchToPage_(MenuState::SETPOINT_MODE_SELECT);
+            break;
+        case MenuState::SETPOINT_MODE_SELECT:
+            this->setpointValueEditPage_.setSensor(
+                this->setpointModeSelectPage_.getSelectedType(),
+                this->setpointModeSelectPage_.getSelectedMode());
+            this->switchToPage_(MenuState::SETPOINT_VALUE_EDIT);
+            break;
+        case MenuState::SETPOINT_VALUE_EDIT:
+            this->editMode_ = EditMode::EDITING;
+            this->setpointValueEditPage_.onEnterEditMode();
             this->displayCurrentPage_();
             break;
         default:
@@ -262,6 +303,21 @@ void UIControler::handleLongPressSelect_() {
             this->switchToPage_(MenuState::SENSOR_NUMBER_SELECT);
         }
         break;
+    case MenuState::SETPOINT_TYPE_SELECT:
+        this->switchToPage_(MenuState::SETTINGS);
+        break;
+    case MenuState::SETPOINT_MODE_SELECT:
+        this->switchToPage_(MenuState::SETPOINT_TYPE_SELECT);
+        break;
+    case MenuState::SETPOINT_VALUE_EDIT:
+        if (this->editMode_ == EditMode::EDITING) {
+            this->editMode_ = EditMode::NAVIGATING;
+            this->setpointValueEditPage_.onExitEditMode();
+            this->switchToPage_(MenuState::SETPOINT_MODE_SELECT);
+        } else {
+            this->switchToPage_(MenuState::SETPOINT_MODE_SELECT);
+        }
+        break;
     default:
         break;
     }
@@ -296,6 +352,15 @@ void UIControler::switchToPage_(MenuState newState) {
     case MenuState::HUMIDITY_CALIB_EDIT:
         this->currentPage_ = &this->humidityCalibEditPage_;
         break;
+    case MenuState::SETPOINT_TYPE_SELECT:
+        this->currentPage_ = &this->setpointTypeSelectPage_;
+        break;
+    case MenuState::SETPOINT_MODE_SELECT:
+        this->currentPage_ = &this->setpointModeSelectPage_;
+        break;
+    case MenuState::SETPOINT_VALUE_EDIT:
+        this->currentPage_ = &this->setpointValueEditPage_;
+        break;
     default:
         break;
     }
@@ -321,6 +386,9 @@ EditPage *UIControler::getCurrentEditPage_() const {
     case MenuState::HUMIDITY_CALIB_EDIT:
         return const_cast<HumidityCalibEditPage *>(
             &this->humidityCalibEditPage_);
+    case MenuState::SETPOINT_VALUE_EDIT:
+        return const_cast<SetpointValueEditPage *>(
+            &this->setpointValueEditPage_);
     default:
         return nullptr;
     }
