@@ -27,7 +27,7 @@ class SettingsPage : public NavigablePage {
      * @brief Récupère le paramètre actuellement sélectionné
      * @return Le paramètre sélectionné
      */
-    display_parameter_t getSelectedParameter() const {
+    inline display_parameter_t getSelectedParameter() const {
         return selParameter_;
     }
 
