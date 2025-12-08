@@ -17,8 +17,8 @@ void PWM::setDutyCycle(uint8_t duty_ratio) {
     }
     this->m_duty = duty_ratio;
 
-    uint32_t pulse = static_cast<uint32_t>(static_cast<float>(this->m_period) /
-                                           this->m_duty);
+    uint32_t pulse = static_cast<uint32_t>(static_cast<float>(this->m_period) *
+                                           this->m_duty / 100.0f);
 
     __HAL_TIM_SET_COMPARE(this->m_handler.htim, this->m_handler.channel, pulse);
 }
