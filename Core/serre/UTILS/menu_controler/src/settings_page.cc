@@ -1,8 +1,7 @@
 #include "../inc/settings_page.hh"
 #include "../../../driver/LCD/inc/lcd.hh"
 
-namespace utils {
-namespace ui {
+using namespace utils::ui;
 
 void SettingsPage::display() {
     driver::lcd::LCD &lcd = driver::lcd::LCD::getInstance();
@@ -37,8 +36,4 @@ void SettingsPage::onButtonDown() {
 }
 
 void SettingsPage::onButtonSelect() {
-    // Ne rien faire ici - la transition est gérée par MenuControler
 }
-
-} // namespace ui
-} // namespace utils

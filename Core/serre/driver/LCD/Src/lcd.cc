@@ -1,7 +1,6 @@
 #include "../inc/lcd.hh"
 
-namespace driver {
-namespace lcd {
+namespace driver::lcd {
 
 __WEAK void init_lcd(void) {
     // Weak implementation for user override
@@ -448,5 +447,4 @@ void LCD::lcd_gpio_toggle_enable() {
     HAL_Delay(1);
 }
 
-} // namespace lcd
-} // namespace driver
+} // namespace driver::lcd

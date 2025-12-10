@@ -19,7 +19,15 @@
 
 #include "../../I2C/inc/i2c_manager.hh"
 
+/**
+ * @namespace driver
+ * @brief Contains classes and methods for various drivers.
+ */
 namespace driver {
+/**
+ * @namespace lcd
+ * @brief Contains classes and methods for handling LCD displays.
+ */
 namespace lcd {
 
 // PCF8574 Pin mapping (I2C mode)
@@ -80,8 +88,8 @@ typedef struct {
 } lcd_handler_t;
 
 struct rc_t {
-    bool newline;
-    uint8_t length;
+    bool newline;   /**< True if a newline was emitted while formatting */
+    uint8_t length; /**< Length of the formatted segment */
 };
 
 /**
@@ -144,8 +152,16 @@ class LCD {
      */
     void lcd_select_mode();
 
+    /**
+     * @brief Initialize GPIO pins and control lines for LCD GPIO mode.
+     * @return void
+     */
     void lcd_gpio_init();
 
+    /**
+     * @brief Initialize LCD over I2C (checks device readiness).
+     * @return true if initialization succeeded, false otherwise
+     */
     bool lcd_i2c_init();
 
     /**
@@ -182,8 +198,19 @@ class LCD {
      */
     void lcd_gpio_send_4bits(uint8_t nibble);
 
+    /**
+     * @brief Send one byte over I2C to the LCD expander.
+     * @param data Byte to write
+     * @param is_data True if data (RS high), false if command (RS low)
+     * @return true on success, false if I2C transfer failed
+     */
     bool lcd_i2c_write_byte(uint8_t data, bool is_data);
 
+    /**
+     * @brief Send a 4-bit nibble over I2C (upper nibble used).
+     * @param nibble Lower 4 bits are written
+     * @return true on success, false on I2C error
+     */
     bool lcd_i2c_send_nibble(uint8_t nibble);
 
     /**
@@ -202,6 +229,11 @@ class LCD {
 
     bool lcd_write_char_i2c(uint8_t data);
 
+    /**
+     * @brief Write one character using currently selected mode.
+     * @param data ASCII character to write
+     * @return true on success, false otherwise
+     */
     bool lcd_write_char(uint8_t data);
 
     /**
@@ -223,8 +255,16 @@ class LCD {
 
     void lcd_clear_gpio();
 
+    /**
+     * @brief Clear display using I2C mode.
+     * @return true on success, false on I2C error
+     */
     bool lcd_clear_i2c();
 
+    /**
+     * @brief Clear display using selected mode.
+     * @return true on success, false otherwise
+     */
     bool lcd_clear();
 
     /**
@@ -246,13 +286,32 @@ class LCD {
      */
     void lcd_goto_gpio(uint8_t row, uint8_t col);
 
+    /**
+     * @brief Position cursor using I2C mode.
+     * @param row Zero-based row index
+     * @param col Zero-based column index
+     * @return true on success, false on I2C error
+     */
     bool lcd_goto_i2c(uint8_t row, uint8_t col);
 
+    /**
+     * @brief Position cursor using selected mode.
+     * @param row Zero-based row index
+     * @param col Zero-based column index
+     * @return true on success, false otherwise
+     */
     bool lcd_goto(uint8_t row, uint8_t col);
 
+    /**
+     * @brief Toggle the enable pin (GPIO mode) to latch current nibble.
+     * @return void
+     */
     void lcd_gpio_toggle_enable();
 
   private:
+    /**
+     * @brief Private constructor for singleton use.
+     */
     LCD();
     LCD(const LCD &) = delete;
     LCD &operator=(const LCD &) = delete;

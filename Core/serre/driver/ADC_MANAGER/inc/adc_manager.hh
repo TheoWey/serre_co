@@ -1,12 +1,13 @@
 /**
- * @brief ADC Manager class for handling ADC operations.
- * This class provides an interface to initialize and manage ADC
- * conversions for multiple channels using DMA.
  * @file adc_manager.hh
+ * @brief ADC manager for multi-channel conversions via DMA.
  * @author ThéoWey, ThybaltCarratala
  * @date 2024-06-10
  * @version 1.1
  *
+ * Declares the ADCManager singleton used to configure and run ADC conversions
+ * triggered by a timer and transferred through DMA. Provides access to the
+ * latest sampled values and a conversion completion flag.
  */
 #ifndef ADC_MANAGER_HH
 #define ADC_MANAGER_HH
@@ -15,7 +16,15 @@
 #include "../../../../Inc/dma.h"
 #include "../../../../Inc/tim.h"
 
+/**
+ * @namespace driver
+ * @brief Contains classes and methods for various drivers.
+ */
 namespace driver {
+/**
+ * @namespace adc_manager
+ * @brief Contains classes and methods for handling ADC operations.
+ */
 namespace adc_manager {
 
 /**
@@ -25,12 +34,15 @@ namespace adc_manager {
  * This structure holds pointers to the ADC and DMA handles used for
  * multi-channel conversions.
  */
-const uint8_t BUFFER_LENGTH = 2; // Number of regular channels scanned
+/**
+ * @brief Number of regular ADC channels scanned in the DMA buffer.
+ */
+const uint8_t BUFFER_LENGTH = 2;
 
 struct ADCManagerHandle {
-    ADC_HandleTypeDef *adc_handle;
-    DMA_HandleTypeDef *dma_handle;
-    TIM_HandleTypeDef *tim_handle;
+    ADC_HandleTypeDef *adc_handle; ///< Pointer to the ADC peripheral handle
+    DMA_HandleTypeDef *dma_handle; ///< Pointer to the DMA handle used for ADC
+    TIM_HandleTypeDef *tim_handle; ///< Pointer to the timer used as trigger
 };
 
 /**
@@ -42,11 +54,14 @@ void init_adc(void);
 class ADCManager {
   public:
     /**
-     * @brief Initialize the ADC manager with given handles.
+     * @brief Initialize the ADC manager with peripheral handles.
+     *
+     * Copies the provided handles and prepares the manager for DMA-driven
+     * conversions.
      *
      * @param adc_handle Pointer to the ADC handle.
      * @param dma_handle Pointer to the DMA handle.
-     * @param tim_handle Pointer to the TIM handle for triggering.
+     * @param tim_handle Pointer to the TIM handle used as trigger source.
      */
     static void initialize(ADC_HandleTypeDef *adc_handle,
                            DMA_HandleTypeDef *dma_handle,
@@ -56,44 +71,38 @@ class ADCManager {
      * @brief Get the singleton instance of ADCManager.
      *
      * @return Reference to the singleton ADCManager instance.
-     *
-     * @note initialize() must be called before first use of getInstance().
+     * @note initialize() must be called before first use.
      */
     static ADCManager &getInstance();
 
     /**
-     * @brief Start ADC conversions using DMA.
-     *
-     * @return HAL_StatusTypeDef indicating the status of the operation.
+     * @brief Start ADC conversions using DMA (timer-triggered).
+     * @return HAL status of the start operation.
      */
     HAL_StatusTypeDef start();
 
     /**
-     * @brief Stop ADC conversions.
-     *
-     * @return HAL_StatusTypeDef indicating the status of the operation.
+     * @brief Stop ADC conversions and DMA transfers.
+     * @return HAL status of the stop operation.
      */
     HAL_StatusTypeDef stop();
 
     /**
-     * @brief Get the ADC conversion result for a specific channel.
-     *
+     * @brief Get the latest ADC value for a channel.
      * @param index Channel index (0..BUFFER_LENGTH-1).
-     * @return The ADC value for the specified channel index.
+     * @return Latest sampled ADC value for the given channel.
      */
     uint16_t getChannelValue(uint8_t index) const;
 
     /**
-     * @brief Get the conversion complete flag.
-     *
+     * @brief Check if a DMA conversion has completed.
      * @return True if conversion is complete, false otherwise.
      */
     bool getConversionCompleteFlag() const volatile;
 
     /**
-     * @brief Set the conversion complete flag.
-     *
-     * @param flag Flag value to set.
+     * @brief Set or clear the conversion complete flag.
+     * @param flag New flag state.
      */
     void setConversionCompleteFlag(bool flag) volatile;
 
@@ -102,9 +111,9 @@ class ADCManager {
     ADCManager(const ADCManager &) = delete;
     ADCManager &operator=(const ADCManager &) = delete;
 
-    ADCManagerHandle adc_handler;
-    volatile bool m_conversionCompleteFlag_ = false;
-    uint16_t m_buffer_[BUFFER_LENGTH]; /**< DMA buffer for ADC values */
+    ADCManagerHandle adc_handler; ///< Stored peripheral handles
+    volatile bool m_conversionCompleteFlag_ = false; ///< DMA completion flag
+    uint16_t m_buffer_[BUFFER_LENGTH]; ///< DMA buffer for ADC values
 };
 
 } // namespace adc_manager

@@ -1,7 +1,6 @@
 #include "../inc/debouncer.hh"
 
-namespace utils {
-namespace debouncer {
+using namespace utils::debouncer;
 
 __WEAK void init_debouncer(void) {
     // Weak implementation for user override
@@ -73,6 +72,3 @@ void DebouncerManager::updateDebouncer(size_t index) {
         }
     }
 }
-
-} // namespace debouncer
-} // namespace utils

@@ -1,7 +1,6 @@
 #include "../inc/pwm_manager.hh"
 
-namespace driver {
-namespace pwm {
+using namespace driver::pwm;
 
 __WEAK void init_pwm(void) {
     // Weak implementation for user override
@@ -88,6 +87,3 @@ void PWMManager::enable(size_t index, bool on) {
         this->pwm_instances[index].enable(on);
     }
 }
-
-} // namespace pwm
-} // namespace driver

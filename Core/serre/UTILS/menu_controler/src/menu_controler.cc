@@ -4,8 +4,7 @@
 #include "../../debouncer/inc/debouncer.hh"
 #include "../../mae_serre/inc/mae_serre.hh"
 
-namespace utils {
-namespace ui {
+using namespace utils::ui;
 
 UIControler::UIControler()
     : currentPage_(&this->mainPage_), currentState_(MenuState::MAIN),
@@ -393,6 +392,3 @@ EditPage *UIControler::getCurrentEditPage_() const {
         return nullptr;
     }
 }
-
-} // namespace ui
-} // namespace utils

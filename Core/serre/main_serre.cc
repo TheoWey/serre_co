@@ -80,21 +80,14 @@ void driver::adc_manager::init_adc(void) {
 
 void driver::sensor::init_sensors(void) {
     static driver::sensor::TempSensor tempSensor0(
-        &adc_manager::ADCManager::getInstance(), 1); // Channel 1
+        &adc_manager::ADCManager::getInstance(),
+        sensor_channel_t::TEMP_0); // Channel 1
     static driver::sensor::SoilHumSensor soilHumSensor0(
-        &adc_manager::ADCManager::getInstance(), 0); // Channel 0
+        &adc_manager::ADCManager::getInstance(),
+        sensor_channel_t::HUM_0); // Channel 0
 
     driver::sensor::SensorManager::getInstance().subscribeTempSensor(
         &tempSensor0);
     driver::sensor::SensorManager::getInstance().subscribeSoilHumSensor(
         &soilHumSensor0);
-}
-
-void calibrate_sensors(void) {
-    driver::sensor::SensorManager &sensorManager =
-        driver::sensor::SensorManager::getInstance();
-    sensorManager.getTempSensor(temp_channel_t::TEMPERATURE_0)
-        ->calibrateOffset();
-    sensorManager.getSoilHumSensor(hum_channel_t::SOIL_HUMIDITY_0)
-        ->calibrateOffset();
 }

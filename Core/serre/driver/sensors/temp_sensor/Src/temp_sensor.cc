@@ -1,7 +1,6 @@
 #include "../inc/temp_sensor.hh"
 
-namespace driver {
-namespace sensor {
+using namespace driver::sensor;
 
 TempSensor::TempSensor(adc_manager::ADCManager *adcManager, uint8_t numChannels)
     : Sensor(adcManager, numChannels) {
@@ -44,5 +43,3 @@ void TempSensor::setThreshold(float minTemp, float maxTemp) {
 
 TempSensor::~TempSensor() {
 }
-} // namespace sensor
-} // namespace driver

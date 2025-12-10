@@ -6,8 +6,8 @@
 #include "../../../driver/sensors/inc/sensor_manager.hh"
 #include "../../menu_controler/inc/menu_controler.hh"
 
-namespace utils {
-namespace mae_serre {
+using namespace utils::mae_serre;
+
 SerreController &SerreController::getInstance() {
     static SerreController instance;
     return instance;
@@ -40,7 +40,7 @@ void SerreController::processLoop() {
 
         break;
     default:
-        // Autres modes
+        // not implemented case
         break;
     }
 }
@@ -70,15 +70,14 @@ void SerreController::pwm_control_loop(void) {
             driver::sensor::SensorManager::getInstance()
                 .getSoilHumSensor(hum_channel_t::SOIL_HUMIDITY_0)
                 ->getHumidityPercent();
-        if (soilHumidity < this->humidityResetPoint_) {
+        if (soilHumidity > this->humidityResetPoint_) {
             PWMManager::getInstance().enable(pwm_channel_t::PUMP, false);
             PWMManager::getInstance().setDutyCycle(pwm_channel_t::PUMP, 0);
-        } else if (soilHumidity > this->humiditySetpoint_) {
+        } else if (soilHumidity < this->humiditySetpoint_) {
             PWMManager::getInstance().enable(pwm_channel_t::PUMP, true);
-            float dutyCycle =
-                ((soilHumidity - this->humidityResetPoint_) /
-                 (this->humiditySetpoint_ - this->humidityResetPoint_)) *
-                100.0f;
+            float dutyCycle = ((this->humiditySetpoint_ - soilHumidity) /
+                               this->humiditySetpoint_) *
+                              100.0f;
             PWMManager::getInstance().setDutyCycle(pwm_channel_t::PUMP,
                                                    dutyCycle);
         }
@@ -89,6 +88,3 @@ void SerreController::sensor_update_loop(void) {
     using namespace driver::sensor;
     SensorManager::getInstance().updateAllSensors();
 }
-
-} // namespace mae_serre
-} // namespace utils

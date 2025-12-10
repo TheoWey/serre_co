@@ -1,7 +1,6 @@
 #include "../inc/soil_hum.hh"
 
-namespace driver {
-namespace sensor {
+using namespace driver::sensor;
 
 SoilHumSensor::SoilHumSensor(adc_manager::ADCManager *adcManager,
                              uint8_t numChannels)
@@ -50,6 +49,3 @@ void SoilHumSensor::calibrate(uint16_t dryValue, uint16_t wetValue) {
 
 SoilHumSensor::~SoilHumSensor() {
 }
-
-} // namespace sensor
-} // namespace driver
