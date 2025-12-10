@@ -1,26 +1,26 @@
-# Règle de messages de commit
+# Commit Message Guidelines
 
-But : s'assurer que tous les commits respectent une convention simple pour faciliter la lecture et l'automatisation.
+Purpose: Ensure that all commits follow a simple convention to facilitate readability and automation.
 
-Règle :
-- Le message de commit doit commencer par l'un des tags suivants : `[DEV]`, `[DOC]`, `[MINOR]`.
+Rule:
+- The commit message must start with one of the following tags: `[DEV]`, `[DOC]`, `[MINOR]`.
 
-Expression régulière (match au début du message) :
+Regular expression (match at the beginning of the message):
 
-Exemples valides :
-- `[DEV] Correction du capteur de température`
-- `[DOC] Mise à jour du README`
-- `[MINOR] Correction typo`
+Valid examples:
+- `[DEV] Fix temperature sensor`
+- `[DOC] Update README`
+- `[MINOR] Fix typo`
 
-Exemples invalides :
-- `Fix bug dans la lecture ADC`
+Invalid examples:
+- `Fix bug in ADC reading`
 - `Updated README`
 
-Application automatique :
-- Un workflow GitHub Actions est fourni : `.github/workflows/commit_rules.yml`.  
-  - Activez la protection de branche (Settings → Branches → Branch protection rules) pour la branche cible (ex. `main`) et exigez que le check du workflow passe avant merge.
-- Optionnel (contrôle local) : ajouter un hook `commit-msg` versionné (ex. `.githooks/commit-msg`) et configurer `git config core.hooksPath .githooks`.
+Automatic application:
+- A GitHub Actions workflow is provided: `.github/workflows/commit_rules.yml`.  
+  - Enable branch protection (Settings → Branches → Branch protection rules) for the target branch (e.g., `main`) and require the workflow check to pass before merging.
+- Optional (local control): add a versioned `commit-msg` hook (e.g., `.githooks/commit-msg`) and configure `git config core.hooksPath .githooks`.
 
-Notes :
-- Adapter la regex si vous voulez autoriser le tag ailleurs que le début du message.
-- Pour les PRs depuis des forks publics, le workflow peut toujours vérifier les messages ; certains checks utilisant des secrets ne s'exécuteront pas.
+Notes:
+- Adjust the regex if you want to allow the tag elsewhere than at the beginning of the message.
+- For PRs from public forks, the workflow can still check messages; some checks using secrets will not run.
