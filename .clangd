@@ -1,0 +1,32 @@
+CompileFlags:
+  Add:
+    - -target
+    - arm-none-eabi
+    - -mcpu=cortex-m0plus
+    - -mthumb
+    - -DSTM32G031xx
+    - -DUSE_HAL_DRIVER
+    - "-Ia:/OneDrive - Association Cesi Viacesi mail/micro/stm32/serre_co/Core"
+    - "-Ia:/OneDrive - Association Cesi Viacesi mail/micro/stm32/serre_co/Core/Inc"
+    - "-Ia:/OneDrive - Association Cesi Viacesi mail/micro/stm32/serre_co/Core/Src"
+    - "-Ia:/OneDrive - Association Cesi Viacesi mail/micro/stm32/serre_co/Core/serre"
+    - "-Ia:/OneDrive - Association Cesi Viacesi mail/micro/stm32/serre_co/Core/serre/driver"
+    - "-Ia:/OneDrive - Association Cesi Viacesi mail/micro/stm32/serre_co/Core/serre/driver/PWM/inc"
+    - "-Ia:/OneDrive - Association Cesi Viacesi mail/micro/stm32/serre_co/Core/serre/driver/sensors/soil_hum_sensor/inc"
+    - "-Ia:/OneDrive - Association Cesi Viacesi mail/micro/stm32/serre_co/Core/serre/driver/sensors/temp_sensor/inc"
+    - "-Ia:/OneDrive - Association Cesi Viacesi mail/micro/stm32/serre_co/Drivers/STM32G0xx_HAL_Driver/Inc"
+    - "-Ia:/OneDrive - Association Cesi Viacesi mail/micro/stm32/serre_co/Drivers/STM32G0xx_HAL_Driver/Inc/Legacy"
+    - "-Ia:/OneDrive - Association Cesi Viacesi mail/micro/stm32/serre_co/Drivers/CMSIS/Device/ST/STM32G0xx/Include"
+    - "-Ia:/OneDrive - Association Cesi Viacesi mail/micro/stm32/serre_co/Drivers/CMSIS/Include"
+    - --sysroot=C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/13.3 rel1/arm-none-eabi
+    - -isystem
+    - C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/13.3 rel1/arm-none-eabi/include/c++/13.3.1
+    - -isystem
+    - C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/13.3 rel1/arm-none-eabi/include/c++/13.3.1/arm-none-eabi
+  Remove:
+    - -m*
+
+Diagnostics:
+  ClangTidy:
+    Remove: '*'
+  UnusedIncludes: None
