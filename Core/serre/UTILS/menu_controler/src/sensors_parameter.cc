@@ -3,8 +3,7 @@
 #include "../../../driver/sensors/inc/sensor_manager.hh"
 #include "../inc/menu_controler.hh"
 
-namespace utils {
-namespace ui {
+using namespace utils::ui;
 
 void SensorTypeSelectPage::display() {
     driver::lcd::LCD &lcd = driver::lcd::LCD::getInstance();
@@ -127,6 +126,3 @@ void HumidityCalibEditPage::navigateSelection(int8_t direction) {
     editField_ = (editField_ == 0) ? 1 : 0;
     display();
 }
-
-} // namespace ui
-} // namespace utils

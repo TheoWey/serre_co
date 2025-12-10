@@ -13,24 +13,39 @@
  * This header declares a PWMManager class that manages multiple PWM
  * instances. It provides methods to initialize, set duty cycles, and
  * enable/disable all PWM channels collectively.
+ *
+ * @details The PWMManager implements a singleton pattern to provide
+ * centralized control over PWM operations across the embedded system.
  */
 
+/**
+ * @namespace driver
+ * @brief Contains classes and methods for various drivers.
+ */
 namespace driver {
+/**
+ * @namespace pwm
+ * @brief Contains classes and methods for handling PWM actuators.
+ */
 namespace pwm {
 
 /**
- * @brief PWM Manager class.
+ * @brief PWM Manager class for centralized PWM control.
  *
- * Manages multiple PWM instances, allowing collective control over
- * their duty cycles and enable states.
+ * Manages multiple PWM instances using a singleton pattern, allowing
+ * collective control over their duty cycles and enable states.
+ *
+ * @details Supports up to MAX_PWM_CHANNELS (10) PWM channels with
+ * independent control. All channels must be initialized before use.
  */
 
 constexpr size_t MAX_PWM_CHANNELS = 10;
 
 /**
- * Initialize the PWM subsystem.
- * @brief Initializes the PWM subsystem. implemented as a weak function in
- * pwm_manager.cc.
+ * @brief Initialize the PWM subsystem.
+ *
+ * Implemented as a weak function in pwm_manager.cc to allow
+ * platform-specific initialization overrides.
  */
 void init_pwm(void);
 
@@ -47,8 +62,8 @@ class PWMManager {
      * @param num_channels Number of entries in pwm_handlers. Only the first
      *                     MIN(num_channels, MAX_PWM_CHANNELS) entries are used.
      *
-     * @note Calling initialize more than once will overwrite the previously
-     *       registered handlers and reinitialize the manager state.
+     * @warning Calling initialize more than once will overwrite the previously
+     *          registered handlers and reinitialize the manager state.
      * @note Must be called before using getInstance() or any PWM operations.
      */
     static void initialize(pwm_handler_t *pwm_handlers, size_t num_channels);
@@ -68,10 +83,11 @@ class PWMManager {
      * The handler is stored in the first available slot. If all slots are
      * occupied, this call has no effect.
      *
-     * @param handler The pwm_handler_t instance to register (copied).
+     * @param pwm_instance The PWM instance to register (copied).
      *
      * @note Does not allocate memory; simply stores the handler in the
      *       internal array and updates bookkeeping (initialized/active).
+     * @return void
      */
     void subscribePWM(PWM pwm_instance);
 
@@ -83,6 +99,7 @@ class PWMManager {
      * is already uninitialized, this call has no effect.
      *
      * @param index Index of the PWM channel to remove (0..MAX_PWM_CHANNELS-1).
+     * @return void
      */
     void unsubscribePWM(size_t index);
 
@@ -90,14 +107,16 @@ class PWMManager {
      * @brief Set duty cycle for all managed PWM channels.
      *
      * @param duty_ratio Duty cycle in the range [0.0, 1.0].
+     * @return void
      */
     void setAllDutyCycles(float duty_ratio);
 
     /**
      * @brief Set duty cycle for a specific PWM channel.
      *
-     * @param index Index of the PWM channel.
+     * @param index Index of the PWM channel (0..MAX_PWM_CHANNELS-1).
      * @param duty_ratio Duty cycle in the range [0.0, 1.0].
+     * @return void
      */
     void setDutyCycle(size_t index, float duty_ratio);
 
@@ -105,22 +124,25 @@ class PWMManager {
      * @brief Enable or disable all managed PWM channels.
      *
      * @param on True to enable, false to disable.
+     * @return void
      */
     void enableAll(bool on);
 
     /**
      * @brief Enable or disable a specific PWM channel.
      *
-     * @param index Index of the PWM channel.
+     * @param index Index of the PWM channel (0..MAX_PWM_CHANNELS-1).
      * @param on True to enable, false to disable.
+     * @return void
      */
     void enable(size_t index, bool on);
 
     /**
      * @brief Get pointer to a PWM instance by index.
      *
-     * @param index Index of the PWM channel.
-     * @return Pointer to PWM instance or nullptr if invalid index.
+     * @param index Index of the PWM channel (0..MAX_PWM_CHANNELS-1).
+     * @return Pointer to PWM instance or nullptr if invalid index or
+     * uninitialized.
      */
     PWM *getPWM(size_t index);
 

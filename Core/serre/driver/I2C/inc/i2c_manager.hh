@@ -2,23 +2,20 @@
 #define __I2C_MANAGER_HH__
 /**
  * @file i2c_manager.hh
- * @brief I2C Manager Header File
- * @author ThéoWey ThybaltCarratala
+ * @brief I2C manager interface for STM32 HAL.
+ * @author ThéoWey, ThybaltCarratala
  * @date 2024-06-10
  * @version 1.1
- * @details
- * This header file defines the interface for the I2C manager, including
- * initialization and basic operations. It supports I2C communication using
- * STM32 HAL types.
- * @note This file has to be updated for correct non-blocking mode
- * implementation. Currently, only blocking mode is supported even if DMA is
- * active and implemented.
+ *
+ * Declares the I2CManager singleton and helper routines to configure and
+ * access multiple I2C channels. Currently supports blocking mode; non-blocking
+ * and DMA paths are stubbed and require completion.
  */
 
 #include "../../../../Inc/i2c.h"
 
 /**
- * @brief Check whether an I2C device is ready.
+ * @brief Check whether an I2C device is ready (blocking).
  *
  * Wrapper macro around HAL_I2C_IsDeviceReady that uses the fields of an
  * i2c_handler_t pointer.
@@ -29,11 +26,19 @@
 #define ping(i2c_handler_ptr)                                                  \
     HAL_I2C_IsDeviceReady((i2c_handler_ptr).hi2c, (i2c_handler_ptr).address,   \
                           (i2c_handler_ptr).timeout, (i2c_handler_ptr).retry)
-
+/**
+ * @namespace driver
+ * @brief Contains classes and methods for various drivers.
+ */
 namespace driver {
+/**
+ * @namespace i2c
+ * @brief Contains classes and methods for handling I2C communications.
+ */
 namespace i2c {
 
-#define BLOCKING_MODE /**< Enable blocking mode for I2C operations */
+#define BLOCKING_MODE /**< Enable blocking mode for I2C operations (current    \
+                         behavior) */
 
 const uint8_t I2C_CHANNELS = 2; /**< Number of supported I2C channels */
 /**
@@ -45,10 +50,8 @@ const uint8_t I2C_CHANNELS = 2; /**< Number of supported I2C channels */
 typedef struct {
     I2C_HandleTypeDef *hi2c; /**< Pointer to HAL I2C handle */
     uint8_t address;         /**< 7-bit I2C device address */
-    uint32_t timeout;        /**< Timeout in ms for I2C operations
-                              * @note only used in blocking mode
-                              */
-    uint8_t retry;           /**< Number of trials for device ready check */
+    uint32_t timeout; /**< Timeout in ms for I2C operations (blocking only) */
+    uint8_t retry;    /**< Number of trials for device ready check */
 } i2c_handler_t;
 
 /**
@@ -71,6 +74,9 @@ class I2CManager {
     /**
      * @brief Initialize the I2C manager with given I2C handlers.
      *
+     * Copies up to I2C_CHANNELS entries from the provided array and marks the
+     * corresponding channels as initialized.
+     *
      * @param i2c_handlers Array of I2C handlers.
      * @param num_channels Number of I2C handlers in the array.
      */
@@ -86,12 +92,16 @@ class I2CManager {
     /**
      * @brief Subscribe an I2C handler to the manager.
      *
+     * The handler is copied into the first free slot.
+     *
      * @param handler I2C handler configuration to subscribe.
      */
     void subscribeI2CHandler(i2c_handler_t handler);
 
     /**
      * @brief Unsubscribe an I2C handler from the manager.
+     *
+     * Marks the slot as uninitialized.
      *
      * @param channel Channel index to unsubscribe.
      */

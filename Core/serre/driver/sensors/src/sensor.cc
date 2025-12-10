@@ -1,7 +1,6 @@
 #include "../inc/sensor.hh"
 
-namespace driver {
-namespace sensor {
+using namespace driver::sensor;
 
 Sensor::Sensor(adc_manager::ADCManager *adcManager, uint8_t numChannels) {
     if (adcManager == nullptr) {
@@ -29,6 +28,3 @@ void Sensor::calibrateOffset() {
 
 Sensor::~Sensor() {
 }
-
-} // namespace sensor
-} // namespace driver

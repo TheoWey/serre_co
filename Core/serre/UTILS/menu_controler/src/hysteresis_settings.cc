@@ -3,8 +3,7 @@
 #include "../../mae_serre/inc/mae_serre.hh"
 #include "../inc/menu_controler.hh"
 
-namespace utils {
-namespace ui {
+using namespace utils::ui;
 
 void SetpointTypeSelectPage::display() {
     driver::lcd::LCD &lcd = driver::lcd::LCD::getInstance();
@@ -61,14 +60,13 @@ void SetpointModeSelectPage::onButtonSelect() {
 void SetpointValueEditPage::setSensor(SetpointType type, SetpointMode mode) {
     this->selectedType_ = type;
     this->selectedMode_ = mode;
-    // Charger les valeurs actuelles depuis le contrôleur
     auto &controller = mae_serre::SerreController::getInstance();
     if (type == SetpointType::TEMPERATURE) {
-        this->temperatureSetpoint_ = controller.GetTemperatureSetpoint();
-        this->temperatureResetPoint_ = controller.GetTemperatureResetPoint();
+        this->temperatureSetpoint_ = controller.getTemperatureSetpoint();
+        this->temperatureResetPoint_ = controller.getTemperatureResetPoint();
     } else {
-        this->humiditySetpoint_ = controller.GetHumiditySetpoint();
-        this->humidityResetPoint_ = controller.GetHumidityResetPoint();
+        this->humiditySetpoint_ = controller.getHumiditySetpoint();
+        this->humidityResetPoint_ = controller.getHumidityResetPoint();
     }
 }
 
@@ -102,30 +100,48 @@ void SetpointValueEditPage::display() {
 }
 
 void SetpointValueEditPage::onEnterEditMode() {
-    UIControler::getInstance().setDelta_m(10);
+    UIControler::getInstance().setDelta_m(1);
     if (this->selectedType_ == SetpointType::TEMPERATURE) {
         this->temperatureSetpoint_ =
-            mae_serre::SerreController::getInstance().GetTemperatureSetpoint();
+            mae_serre::SerreController::getInstance().getTemperatureSetpoint();
         this->temperatureResetPoint_ = mae_serre::SerreController::getInstance()
-                                           .GetTemperatureResetPoint();
+                                           .getTemperatureResetPoint();
     } else {
         this->humiditySetpoint_ =
-            mae_serre::SerreController::getInstance().GetHumiditySetpoint();
+            mae_serre::SerreController::getInstance().getHumiditySetpoint();
         this->humidityResetPoint_ =
-            mae_serre::SerreController::getInstance().GetHumidityResetPoint();
+            mae_serre::SerreController::getInstance().getHumidityResetPoint();
     }
     this->display();
 }
 
 void SetpointValueEditPage::onExitEditMode() {
-    // Sauvegarder les valeurs dans le contrôleur
     auto &controller = mae_serre::SerreController::getInstance();
+
     if (this->selectedType_ == SetpointType::TEMPERATURE) {
-        controller.SetTemperatureSetpoint(this->temperatureSetpoint_);
-        controller.SetTemperatureResetPoint(this->temperatureResetPoint_);
+        if (this->selectedMode_ == SetpointMode::SETPOINT) {
+            if (this->temperatureSetpoint_ - this->temperatureResetPoint_ < 5) {
+                this->temperatureResetPoint_ = this->temperatureSetpoint_ - 5;
+            }
+        } else {
+            if (this->temperatureResetPoint_ - this->temperatureSetpoint_ < 5) {
+                this->temperatureSetpoint_ = this->temperatureResetPoint_ + 5;
+            }
+        }
+        controller.setTemperatureSetpoint(this->temperatureSetpoint_);
+        controller.setTemperatureResetPoint(this->temperatureResetPoint_);
     } else {
-        controller.SetHumiditySetpoint(this->humiditySetpoint_);
-        controller.SetHumidityResetPoint(this->humidityResetPoint_);
+        if (this->selectedMode_ == SetpointMode::SETPOINT) {
+            if (this->humidityResetPoint_ - this->humiditySetpoint_ < 5) {
+                this->humidityResetPoint_ = this->humiditySetpoint_ + 5;
+            }
+        } else {
+            if (this->humiditySetpoint_ - this->humidityResetPoint_ < 5) {
+                this->humiditySetpoint_ = this->humidityResetPoint_ - 5;
+            }
+        }
+        controller.setHumiditySetpoint(this->humiditySetpoint_);
+        controller.setHumidityResetPoint(this->humidityResetPoint_);
     }
     this->display();
 }
@@ -157,6 +173,3 @@ void SetpointValueEditPage::adjustValue(int8_t delta) {
     }
     this->display();
 }
-
-} // namespace ui
-} // namespace utils

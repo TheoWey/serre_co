@@ -3,8 +3,7 @@
 #include "../../../driver/PWM/inc/pwm_manager.hh"
 #include "../../../driver/sensors/inc/sensor_manager.hh"
 
-namespace utils {
-namespace ui {
+using namespace utils::ui;
 
 void MainPage::display() {
     driver::lcd::LCD &lcd = driver::lcd::LCD::getInstance();
@@ -47,6 +46,3 @@ void MainPage::onLongPressUp() {
 
 void MainPage::onLongPressDown() {
 }
-
-} // namespace ui
-} // namespace utils

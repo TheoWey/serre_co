@@ -11,8 +11,7 @@
 
 #include "../inc/adc_manager.hh"
 
-namespace driver {
-namespace adc_manager {
+using namespace driver::adc_manager;
 
 __WEAK void init_adc(void) {
     // Weak implementation for user override
@@ -66,13 +65,11 @@ void ADCManager::setConversionCompleteFlag(bool flag) volatile {
     this->m_conversionCompleteFlag_ = flag;
 }
 
-} // namespace adc_manager
-
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
     if (hadc == nullptr) {
         return;
     }
 
-    adc_manager::ADCManager::getInstance().setConversionCompleteFlag(true);
+    driver::adc_manager::ADCManager::getInstance().setConversionCompleteFlag(
+        true);
 }
-} // namespace driver

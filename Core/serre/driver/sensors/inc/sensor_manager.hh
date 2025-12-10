@@ -1,13 +1,12 @@
 /**
  * @file sensor_manager.hh
  * @brief SensorManager class for handling sensor operations and coordination.
+ * @author ThéoWey, ThybaltCarratala
+ * @date 2024-06-10
+ * @version 1.1
  *
  * This header defines the SensorManager singleton which centralizes ADC-driven
  * sensor read and processing flows for temperature and soil humidity sensors.
- *
- * @authors ThéoWey, ThybaltCarratala
- * @date 2024-06-10
- * @version 1.1
  */
 
 #ifndef SENSOR_MANAGER_HH
@@ -16,19 +15,30 @@
 #include "../soil_hum_sensor/inc/soil_hum.hh"
 #include "../temp_sensor/inc/temp_sensor.hh"
 
+/**
+ * @namespace driver
+ * @brief Contains classes and methods for various drivers.
+ */
 namespace driver {
+/**
+ * @namespace sensor
+ * @brief Contains classes and methods for handling various sensors.
+ */
 namespace sensor {
 
 /**
  * @brief Maximum number of sensors managed per sensor type.
  *
  * This constant defines the fixed-size arrays used to store sensor pointers.
+ * Applies to both temperature and soil humidity sensor arrays.
  */
 constexpr size_t MAX_SENSORS = 5;
 
 /**
- * @brief Initializes the sensor subsystem. Implemented as a weak function in
- * sensor_manager.cc.
+ * @brief Initialize the sensor subsystem.
+ *
+ * Implemented as a weak function in sensor_manager.cc to allow
+ * platform-specific initialization overrides.
  */
 void init_sensors(void);
 
@@ -36,13 +46,14 @@ void init_sensors(void);
  * @brief Subscribe a sensor pointer into a fixed-size array.
  *
  * Adds the provided sensor pointer into the first available nullptr slot of
- * the provided fixed-size array. No duplication or overflow error is
- * reported; callers should ensure space is available or extend this helper
- * to return a status if needed.
+ * the provided fixed-size array.
  *
  * @tparam T Sensor type (e.g., TempSensor or SoilHumSensor).
  * @param sensorArray Reference to the fixed-size array of pointers.
  * @param sensor Pointer to the sensor to subscribe.
+ *
+ * @note No duplication or overflow error is reported. Callers should ensure
+ *       space is available or extend this helper to return a status if needed.
  */
 template <typename T>
 void SensorSubscribe(T *sensorArray[MAX_SENSORS], T *sensor) {
@@ -59,15 +70,16 @@ void SensorSubscribe(T *sensorArray[MAX_SENSORS], T *sensor) {
  *
  * Calls the provided member function pointer on either the sensor at the
  * specified index or on every non-null sensor when index is >= MAX_SENSORS.
- * This helper is intended to be used with member-function pointers such as
- * &TempSensor::readData or &SoilHumSensor::processData.
  *
  * @tparam T Sensor type.
- * @tparam MemFn Type of member-function pointer (e.g. void (T::*)()).
+ * @tparam MemFn Type of member-function pointer (e.g., void (T::*)()).
  * @param sensorArray Reference to the fixed-size array of sensor pointers.
  * @param OpeFunc Member-function pointer to invoke on the sensor(s).
  * @param index Index of the sensor to operate on (0..MAX_SENSORS-1) or
- *              MAX_SENSORS to indicate "all".
+ *              MAX_SENSORS to indicate "all sensors".
+ *
+ * @note This helper is intended for use with member-function pointers such as
+ *       &TempSensor::readData or &SoilHumSensor::processData.
  */
 template <typename T, typename MemFn>
 inline void SensorDataOperation(T *sensorArray[MAX_SENSORS], MemFn OpeFunc,
@@ -92,16 +104,17 @@ class SensorManager {
     /**
      * @brief Initialize the SensorManager (optional placeholder).
      *
-     * @note Provided for consistency with other managers.
+     * Provided for consistency with other manager classes.
+     * @return void
      */
     static void initialize();
 
     /**
      * @brief Retrieve the global SensorManager singleton instance.
      *
-     * The instance is lazily created on first call and lives for the program
-     * lifetime. Thread-safety depends on the environment; this is intended for
-     * simple embedded usage.
+     * The instance is lazily created on first call and persists for the program
+     * lifetime. Thread-safety depends on the execution environment; this is
+     * intended for simple embedded usage.
      *
      * @return SensorManager& Reference to the singleton instance.
      */
@@ -111,7 +124,7 @@ class SensorManager {
      * @brief Destructor.
      *
      * Cleans up resources held by the manager. Does not delete sensor pointers
-     * (ownership remains with the caller).
+     * as ownership remains with the caller.
      */
     ~SensorManager() = default;
 
@@ -119,9 +132,12 @@ class SensorManager {
      * @brief Subscribe a temperature sensor to the manager.
      *
      * The sensor is appended to the internal tempSensor array if space is
-     * available. Duplicate checks are not performed.
+     * available.
      *
      * @param sensor Pointer to a TempSensor instance to subscribe.
+     * @return void
+     *
+     * @note Duplicate checks are not performed.
      */
     void subscribeTempSensor(TempSensor *sensor);
 
@@ -129,24 +145,29 @@ class SensorManager {
      * @brief Subscribe a soil humidity sensor to the manager.
      *
      * @param sensor Pointer to a SoilHumSensor instance to subscribe.
+     * @return void
      */
     void subscribeSoilHumSensor(SoilHumSensor *sensor);
 
     /**
      * @brief Start or request a read for a temperature sensor.
      *
-     * If index is omitted or equals MAX_SENSORS, behavior is implementation
-     * defined (e.g., initiate reads for all or the next available sensor).
-     *
      * @param index Index of the sensor to read (0..MAX_SENSORS-1) or
-     * MAX_SENSORS to indicate a default/all behavior.
+     *              MAX_SENSORS to indicate default/all behavior.
+     * @return void
+     *
+     * @note If index is omitted or equals MAX_SENSORS, the behavior is
+     *       implementation-defined (e.g., initiate reads for all or next
+     *       available sensor).
      */
     void readTempData(uint8_t index = MAX_SENSORS);
 
     /**
      * @brief Start or request a read for a soil humidity sensor.
      *
-     * @param index Index of the sensor to read or MAX_SENSORS for default/all.
+     * @param index Index of the sensor to read (0..MAX_SENSORS-1) or
+     *              MAX_SENSORS for default/all behavior.
+     * @return void
      */
     void readSoilHumData(uint8_t index = MAX_SENSORS);
 
@@ -156,50 +177,91 @@ class SensorManager {
      * Processing may convert raw ADC values to engineering units, filter data,
      * and forward results to higher-level logic.
      *
-     * @param index Index of the sensor to process or MAX_SENSORS for
-     * default/all.
+     * @param index Index of the sensor to process (0..MAX_SENSORS-1) or
+     *              MAX_SENSORS for default/all behavior.
+     * @return void
      */
     void processTempData(uint8_t index = MAX_SENSORS);
 
     /**
      * @brief Process soil humidity data for a sensor.
      *
-     * @param index Index of the sensor to process or MAX_SENSORS for
-     * default/all.
+     * @param index Index of the sensor to process (0..MAX_SENSORS-1) or
+     *              MAX_SENSORS for default/all behavior.
+     * @return void
      */
     void processSoilHumData(uint8_t index = MAX_SENSORS);
 
+    /**
+     * @brief Calibrate a temperature sensor.
+     *
+     * @param index Index of the sensor to calibrate (0..MAX_SENSORS-1) or
+     *              MAX_SENSORS to calibrate all temperature sensors.
+     * @return void
+     */
     void calibrateTempSensor(uint8_t index = MAX_SENSORS);
 
+    /**
+     * @brief Calibrate a soil humidity sensor.
+     *
+     * @param index Index of the sensor to calibrate (0..MAX_SENSORS-1) or
+     *              MAX_SENSORS to calibrate all soil humidity sensors.
+     * @return void
+     */
     void calibrateSoilHumSensor(uint8_t index = MAX_SENSORS);
 
     /**
      * @brief Initiate reads for all registered sensors.
      *
      * This function typically triggers DMA/ADC conversions for every subscribed
-     * sensor in both categories.
+     * sensor in both temperature and soil humidity categories.
+     * @return void
      */
     void readAllSensors();
 
     /**
      * @brief Process data for all registered sensors.
      *
-     * Calls processing routines for every subscribed sensor in both categories.
+     * Calls processing routines for every subscribed sensor in both temperature
+     * and soil humidity categories.
+     * @return void
      */
     void processAllSensors();
 
     /**
      * @brief Update all sensors by reading and processing their data.
      *
-     * This is a convenience function that combines readAllSensors() and
+     * Convenience function that combines readAllSensors() and
      * processAllSensors().
+     * @return void
      */
     void updateAllSensors();
 
+    /**
+     * @brief Calibrate all registered sensors.
+     *
+     * Triggers calibration for all subscribed sensors in both temperature
+     * and soil humidity categories.
+     * @return void
+     */
     void calibrateAllSensors();
 
+    /**
+     * @brief Get a temperature sensor by index.
+     *
+     * @param index Index of the sensor (0..MAX_SENSORS-1).
+     * @return Pointer to TempSensor instance or nullptr if invalid index or
+     *         uninitialized.
+     */
     TempSensor *getTempSensor(uint8_t index);
 
+    /**
+     * @brief Get a soil humidity sensor by index.
+     *
+     * @param index Index of the sensor (0..MAX_SENSORS-1).
+     * @return Pointer to SoilHumSensor instance or nullptr if invalid index or
+     *         uninitialized.
+     */
     SoilHumSensor *getSoilHumSensor(uint8_t index);
 
   private:

@@ -10,8 +10,7 @@
 
 #include "../inc/sensor_manager.hh"
 
-namespace driver {
-namespace sensor {
+using namespace driver::sensor;
 
 __WEAK void init_sensors(void) {
     // Weak implementation for user override
@@ -98,6 +97,3 @@ SoilHumSensor *SensorManager::getSoilHumSensor(uint8_t index) {
     }
     return nullptr;
 }
-
-} // namespace sensor
-} // namespace driver

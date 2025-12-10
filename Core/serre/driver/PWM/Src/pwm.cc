@@ -1,7 +1,6 @@
 #include "../inc/pwm.hh"
 
-namespace driver {
-namespace pwm {
+using namespace driver::pwm;
 
 PWM::PWM(pwm_handler_t pwm_handler) {
     this->m_handler = pwm_handler;
@@ -31,6 +30,3 @@ void PWM::enable(bool on) {
         HAL_TIM_PWM_Stop(this->m_handler.htim, this->m_handler.channel);
     }
 }
-
-} // namespace pwm
-} // namespace driver

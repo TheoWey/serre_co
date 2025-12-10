@@ -1,7 +1,6 @@
 #include "../inc/i2c_manager.hh"
 
-namespace driver {
-namespace i2c {
+namespace driver::i2c {
 
 __WEAK void init_i2c(void) {
     // Weak implementation for user override
@@ -83,5 +82,4 @@ __weak HAL_StatusTypeDef i2c_read_helper(i2c_handler_t handler, uint8_t *data,
 
 #endif
 
-} // namespace i2c
-} // namespace driver
+} // namespace driver::i2c

@@ -15,7 +15,15 @@
 
 #include "../../../../Inc/gpio.h"
 
+/**
+ * @namespace utils
+ * @brief Contains utility classes and methods.
+ */
 namespace utils {
+/**
+ * @namespace debouncer
+ * @brief Contains classes and methods for debouncer management.
+ */
 namespace debouncer {
 
 const uint8_t DEBOUNCER_CHANNELS = 5; /**< Number of supported debouncer

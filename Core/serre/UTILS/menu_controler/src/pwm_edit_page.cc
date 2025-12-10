@@ -3,8 +3,7 @@
 #include "../../../driver/PWM/inc/pwm_manager.hh"
 #include "../inc/menu_controler.hh"
 
-namespace utils {
-namespace ui {
+using namespace utils::ui;
 
 void PWMEditPage::display() {
     auto &lcd = driver::lcd::LCD::getInstance();
@@ -56,6 +55,3 @@ void PWMEditPage::navigateSelection(int8_t direction) {
     }
     this->display();
 }
-
-} // namespace ui
-} // namespace utils

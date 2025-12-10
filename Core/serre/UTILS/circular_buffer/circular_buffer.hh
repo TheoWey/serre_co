@@ -15,7 +15,15 @@
 #include "stddef.h"
 #include <stdint.h>
 
+/**
+ * @namespace utils
+ * @brief Contains utility classes and methods.
+ */
 namespace utils {
+/**
+ * @namespace circular_buffer
+ * @brief Contains classes and methods for circular buffer management.
+ */
 namespace circular_buffer {
 
 /**
@@ -41,7 +49,7 @@ template <typename T, size_t SIZE> class CircularBuffer {
      * @brief Add an item to the circular buffer.
      * @param item The item to add.
      */
-    void add(const T &item) {
+    inline void add(const T &item) {
         // If buffer full, we will overwrite the oldest element at current head
         if (full_) {
             // Subtract the value being overwritten to keep a correct running
@@ -69,7 +77,7 @@ template <typename T, size_t SIZE> class CircularBuffer {
      * @param item Reference to store the retrieved item.
      * @return true if an item was retrieved, false if the buffer is empty.
      */
-    bool get(T &item) {
+    inline bool get(T &item) {
         if (isEmpty()) {
             return false;
         }
@@ -83,7 +91,7 @@ template <typename T, size_t SIZE> class CircularBuffer {
      * @brief Check if the buffer is empty.
      * @return true if the buffer is empty, false otherwise.
      */
-    bool isEmpty() const {
+    inline bool isEmpty() const {
         return size_ == 0;
     }
 
@@ -91,7 +99,7 @@ template <typename T, size_t SIZE> class CircularBuffer {
      * @brief Check if the buffer is full.
      * @return true if the buffer is full, false otherwise.
      */
-    bool isFull() const {
+    inline bool isFull() const {
         return full_;
     }
 
@@ -99,14 +107,14 @@ template <typename T, size_t SIZE> class CircularBuffer {
      * @brief Get the current size of the buffer.
      * @return The number of items currently in the buffer.
      */
-    size_t capacity() const {
+    inline size_t capacity() const {
         return SIZE;
     }
 
     /**
      * @brief Get the number of valid items currently stored.
      */
-    size_t size() const {
+    inline size_t size() const {
         return size_;
     }
 
@@ -114,7 +122,7 @@ template <typename T, size_t SIZE> class CircularBuffer {
      * @brief Read the whole buffer content into an array.
      * @param array Pointer to the array to store the buffer content.
      */
-    void readAll(T *array) const {
+    inline void readAll(T *array) const {
         if (array == nullptr) {
             return;
         }
@@ -129,7 +137,7 @@ template <typename T, size_t SIZE> class CircularBuffer {
      * @brief Calculate the average of the buffer content.
      * @return The average value of the items in the buffer.
      */
-    float average() const {
+    inline float average() const {
         if (SIZE == 0 || size_ == 0) {
             return 0.0f;
         }
@@ -148,4 +156,5 @@ template <typename T, size_t SIZE> class CircularBuffer {
 
 } // namespace circular_buffer
 } // namespace utils
+
 #endif // CIRCULAR_BUFFER_HH
