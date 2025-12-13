@@ -73,16 +73,19 @@ jobs:
             patch=$(echo $last_release | cut -d. -f3)
           fi
 
-          # Bump pour release
-          if [[ "$channel" == "release" ]]; then
+            # Bump pour release
+            if [[ "$channel" == "release" ]]; then
             if [[ ! -z "$last_release" ]]; then
               if [[ "$bump" == "major" ]]; then
-                major=$((major + 1)); minor=0; patch=0
+              major=$((major + 1)); minor=0; patch=0
               elif [[ "$bump" == "minor" ]]; then
-                minor=$((minor + 1)); patch=0
+              minor=$((minor + 1)); patch=0
               else
-                patch=$((patch + 1))
+              patch=$((patch + 1))
               fi
+            else
+              # Si pas de dernière release, commencer à 1.0.0
+              major=1; minor=0; patch=0
             fi
             new_tag="v${major}.${minor}.${patch}"
           else
