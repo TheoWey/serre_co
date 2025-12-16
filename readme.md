@@ -243,5 +243,11 @@ For more advanced customization, see the code comments and existing implementati
 
 ---
 
+## Team
+
+This project is developed and maintained by the **GreenControl** team. For detailed information about the team structure and members, see [TEAM.md](TEAM.md).
+
+---
+
 ## Contact
 For questions or contributions, contact the project maintainer or open an issue on GitHub.
